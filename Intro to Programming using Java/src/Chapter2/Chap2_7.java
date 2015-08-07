@@ -1,5 +1,5 @@
 package Chapter2;
-import textIO.TextIO;;
+import support.TextIO;;
 
 public class Chap2_7 {
 

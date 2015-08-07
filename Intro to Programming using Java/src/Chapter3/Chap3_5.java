@@ -1,5 +1,5 @@
 package Chapter3;
-import textIO.TextIO;
+import support.TextIO;
 
 public class Chap3_5 {
 	public static void main(String[] args) {
