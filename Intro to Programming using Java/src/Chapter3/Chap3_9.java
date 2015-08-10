@@ -15,6 +15,11 @@ import javax.swing.*;
 public class Chap3_9 extends JPanel implements ActionListener {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Draws one frame of an animation. This subroutine is called re
      * second and is responsible for redrawing the entire drawing area.  The
      * parameter g is used for drawing. The frameNumber starts at zero and
