@@ -23,7 +23,7 @@ public class Nine {
 				System.out.println("yes");
 			}
 		}
-//		System.out.println("Product : "+ (tA*tB*tC));
+		System.out.println("Product : "+ (tA*tB*tC));
 	}
 
 }
