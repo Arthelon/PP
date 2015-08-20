@@ -61,7 +61,6 @@ public class Bucky extends Sprite {
 	}
 	
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) {
-		
 		WorldMap.draw(pos.x, pos.y);
 		bucky.draw(400, 300); 
 	}

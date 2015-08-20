@@ -1,4 +1,4 @@
-package Chapter5;
+package DocumentedWorks;
 import support.AdditionQuestion; 
 import support.IntQuestion;
 import support.SubtractQuestion;
@@ -13,7 +13,7 @@ import java.util.Scanner; //Makes the Scanner class available for recording user
  * to be correct or incorrect. The user's score out of 10 is printed at the very end of the program.
  *
  */
-public class Chap5_7 {
+public class ArithmeticQuiz {
 	
 	static IntQuestion[] random = new IntQuestion[10]; //Holds the Question objects
 	static int[] user = new int[10];                   //Holds user input for corresponding Questions in the random array
