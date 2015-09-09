@@ -2,11 +2,10 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/jars/lwjgl.jar">
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Slick2D">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Bucky/lib/natives/macosx"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/Daniel/Desktop/Slick Library/lwjgl-2.9.3/native/macosx"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jars/slick.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
