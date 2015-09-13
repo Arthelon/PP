@@ -10,19 +10,19 @@ public class Main extends StateBasedGame {
 	public static final int GAME = 1;
 	public static final int END = 2;
 	
+	private static int screenY = 700;
+	private static int screenX = 592;
+	
 	public Main() {
 		super("Gun-Smoke");
-		this.addState(new Start(START));
-		this.addState(new Game(GAME));
-		this.addState(new End(END));
+		this.addState(new Start(screenX, screenY));
+		this.addState(new Game(screenX, screenY));
+		this.addState(new End(screenX, screenY));
 	}
 
 	@Override
 	public void initStatesList(GameContainer gc) throws SlickException {
 		this.getState(START).init(gc, this);
-		this.getState(GAME).init(gc, this);
-		this.getState(END).init(gc, this);
-		
 		this.enterState(START);
 		
 	}
@@ -31,8 +31,9 @@ public class Main extends StateBasedGame {
 		AppGameContainer container;
 		try {
 			container = new AppGameContainer(new Main());
-			container.setShowFPS(false);
-			container.setDisplayMode(800, 600, false);
+//			container.setShowFPS(false);
+			container.setTargetFrameRate(60);
+			container.setDisplayMode(screenX, screenY, false);
 			container.start();
 			
 		} catch (SlickException e) {

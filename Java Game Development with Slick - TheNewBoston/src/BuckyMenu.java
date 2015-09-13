@@ -18,7 +18,7 @@ public class BuckyMenu extends BasicGameState {
 		 
 	}
 	@Override
-	public void init(GameContainer arg0, StateBasedGame arg1)
+	public void init(GameContainer arg0, StateBasedGame sbg)
 			throws SlickException {
 		playNow = new Image("src/playNow.png");	
 		exitGame = new Image("src/exitGame.png");

@@ -7,9 +7,13 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 public class End extends BasicGameState {
-	int state;
-	public End(int state) {
-		this.state = state;
+	
+	private int screenX;
+	private int screenY;
+	
+	public End(int screenX, int screenY) {
+		this.screenX = screenX;
+		this.screenY = screenY;
 	}
 	
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
@@ -30,7 +34,7 @@ public class End extends BasicGameState {
 	@Override
 	public int getID() {
 		// TODO Auto-generated method stub
-		return state;
+		return 2;
 	}
 
 }

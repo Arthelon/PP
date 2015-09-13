@@ -2,9 +2,9 @@ package Entity;
 
 import org.newdawn.slick.SlickException;
 
-public class Shooter extends Sprite {
+public class Fence extends gameObject {
 
-	public Shooter() throws SlickException {
+	public Fence() throws SlickException {
 		super();
 		// TODO Auto-generated constructor stub
 	}
