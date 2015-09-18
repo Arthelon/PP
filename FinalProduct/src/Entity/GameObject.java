@@ -8,20 +8,26 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
-public class gameObject {
+import World.Game;
+
+public class GameObject {
 	private Image image;
+	private Game world;
 	private Vector2f position;
+	private float rotation;
 	
-	public gameObject() throws SlickException {
+	public GameObject() throws SlickException {
 		image = new Image("res/images/blank.png");
 		position = new Vector2f(0, 0);
+		rotation = 0;
 	}
 	
-	public void update(GameContainer gc, StateBasedGame sbg, int delta) {
+	public void update(GameContainer gc, int delta) throws SlickException {
 		
 	}
 	
-	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) {
+	public void render(GameContainer gc, Graphics g) {
+		image.setRotation(rotation);
 		image.draw(position.x-(getWidth()/2), position.y-(getHeight()/2));
 	}
 	
@@ -46,13 +52,14 @@ public class gameObject {
 		position.y = y;
 	}
 	
-	public void setX(int x) {
+	public void setX(float x) {
 		position.x = x;
 	}
 	
-	public void setY(int y) {
+	public void setY(float y) {
 		position.y = y;
 	}
+	
 	
 	public void changeX(float x) {
 		position.x += x;
@@ -62,8 +69,19 @@ public class gameObject {
 		position.y += y;
 	}
 	
-	public boolean atWorldEdge() {
-		return position.x < getWidth() / 2 || position.x > 592 - getWidth() / 2 || 
-				position.x < getHeight() / 2 || position.y > 700 - getHeight() / 2;
+	public void setRot(float rot) {
+		rotation = rot;
+	}
+	
+	public float getRot() {
+		return rotation;
+	}
+	
+	public void setWorld(Game world) {
+		this.world = world;
+	}
+	
+	public Game getWorld() {
+		return world;
 	}
 }

@@ -7,9 +7,9 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.geom.Vector2f;
 
-public class Sprite extends gameObject {
+public class Sprite extends GameObject {
 	private HashMap<String, Animation> animation = new HashMap<String, Animation>();
 	private Animation currentAnimation;
 	
@@ -26,8 +26,16 @@ public class Sprite extends gameObject {
 	}
 	
 	@Override
-	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) {
+	public void render(GameContainer gc, Graphics g) {
 		currentAnimation.draw(getPos().x-(getWidth()/2), getPos().y-(getHeight()/2));
 	}
-
+	
+	public boolean bulletCollide(Vector2f pos) {
+		return ((pos.x >= getPos().x - getWidth()/2 && pos.x <= getPos().x + getWidth()/2) && 
+				(pos.y >= getPos().y - getHeight()/2 && pos.y <= getPos().y + getHeight()/2));
+	}
+	
+	public void death() {
+		
+	}
 }
