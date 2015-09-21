@@ -38,6 +38,8 @@ public class Game extends BasicGameState {
 	private int spawnGap = 37;
 	private int spawnRandom;
 	private int shooterChance = 77; //Random Prime
+	private int shooterLimit = 7; //Limit to the number of shooter's on the screen at one time
+	private int shooterCount = 0;
 	
 	
 	private Player player;
@@ -89,6 +91,9 @@ public class Game extends BasicGameState {
 			if (object instanceof Bullet) {
 				bullets.add((Bullet)object);
 			}
+			if (object instanceof Shooter) {
+				shooterCount++;
+			}
 		}
 		for (GameObject sprite : sprites) {
 			spriteCheck((Sprite)sprite);
@@ -118,15 +123,16 @@ public class Game extends BasicGameState {
 	
 	public void spawnEnemies() throws SlickException {
 		spawnRandom = (int)(Math.random()*(16 * shooterChance));
-		if (spawnRandom % shooterChance == 0) {
+		if (shooterCount < shooterLimit && spawnRandom % shooterChance == 0) {
 			addObject(new Shooter(((int)spawnRandom/shooterChance) * spawnGap, 0));
 		}
+		shooterCount = 0;
 	}
+	
 	
 	public void spriteCheck(Sprite sprite) {
 		for (Bullet bullet : bullets) {
-			if (sprite.bulletCollide(bullet.getPos())) {
-				System.out.println("hi");
+			if (!bullet.getImmune() && sprite.collide(bullet.getPos())) {
 				sprite.death();
 				removeObject(bullet);
 			}

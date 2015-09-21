@@ -16,7 +16,9 @@ public class Shooter extends Sprite {
 		Image down = new Image("res/images/shooter/shooter.png");
 		
 		Image[] shootDown = {down, new Image("res/images/shooter/shooter1.png"), down, new Image("res/images/shooter/shooter2.png")};
+		Image[] death = {new Image("res/images/shooter/shooterDeath.png")};
 		
+		addAnimation(death, 600, "death");
 		addAnimation(shootDown, 200, "shootDown");
 		
 		setAnimation("shootDown");
@@ -34,9 +36,8 @@ public class Shooter extends Sprite {
 		
 	}
 	
-	@Override
 	public void death() {
-		getWorld().removeObject(this);
+		deathAnimation();
 	}
 
 }

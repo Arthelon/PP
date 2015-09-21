@@ -35,5 +35,10 @@ public class Bullet extends GameObject {
 			getWorld().removeObject(this);
 		}
 	}
+	
+	public boolean getImmune() {
+		if (time <= 200) return true;
+		return false;
+	}
 
 }
