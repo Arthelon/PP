@@ -1,5 +1,6 @@
 package Entity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.newdawn.slick.Animation;
@@ -47,6 +48,10 @@ public class Sprite extends GameObject {
 	public void deathAnimation() {
 		currentAnimation = animation.get("death");
 		currentAnimation.setLooping(false);
+	}
+	
+	public void collideMove(int collideList) {
+
 	}
 	
 	public Animation getAnimation() {

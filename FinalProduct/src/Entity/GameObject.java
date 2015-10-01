@@ -1,12 +1,12 @@
 package Entity;
 
 
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
-import org.newdawn.slick.state.StateBasedGame;
 
 import World.Game;
 
@@ -14,10 +14,12 @@ public class GameObject {
 	private Image image;
 	private Game world;
 	private Vector2f position;
+	public int dir;
 	private float rotation;
 	
 	public GameObject() throws SlickException {
 		image = new Image("res/images/blank.png");
+		dir = 0;
 		position = new Vector2f(0, 0);
 		rotation = 0;
 	}
@@ -69,6 +71,10 @@ public class GameObject {
 		position.y += y;
 	}
 	
+	public void setDir(int dir) {
+		this.dir = dir;
+	}
+	
 	public void setRot(float rot) {
 		rotation = rot;
 	}
@@ -77,11 +83,25 @@ public class GameObject {
 		return rotation;
 	}
 	
+//	public void setBuffer(int buffer) {
+//		this.buffer = buffer;
+//	}
+	
 	public void setWorld(Game world) {
 		this.world = world;
 	}
 	
 	public Game getWorld() {
 		return world;
+	}
+	
+	public int getCollide(GameObject object) {
+		if (object.getPos().y - object.getHeight()/2 <= position.y + (getHeight()/2) && 
+				object.getPos().x + object.getWidth()/2 >= position.x - (getWidth()/2) &&
+				object.getPos().x - object.getWidth()/2 <= position.x + (getWidth()/2) &&
+				object.getPos().y + object.getHeight()/2 >= position.y - (getHeight()/2)) {
+			return dir;
+		} 
+		return 0;
 	}
 }

@@ -5,11 +5,15 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
 public class Shooter extends Sprite {
-//	private final float FIRESPEED = 0.2f;
+	private static final float FIRESPEED = 0.2f;
+	private static final float MOVESPEED = 0.2f;
+	
 	private Image left, right, down, back;
+	private static int shooterCount = 0; 
 	
 	public Shooter(float x, float y) throws SlickException {
 		super();
+		shooterCount++;
 //		Image left = new Image("res/images/shooter/shootLeft.png");
 //		Image right = new Image("res/images/shooter/shootRight.png");
 //		Image back = new Image("res/images/shooter/shooterBack.png");
@@ -38,6 +42,11 @@ public class Shooter extends Sprite {
 	
 	public void death() {
 		deathAnimation();
+		shooterCount--;
 	}
-
+	
+	public static int getCount() {
+		return shooterCount;
+	}
+	
 }

@@ -7,7 +7,6 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Music;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -33,13 +32,12 @@ public class Game extends BasicGameState {
 	private ArrayList<GameObject> addList = new ArrayList<GameObject>();
 	private ArrayList<GameObject> removeList = new ArrayList<GameObject>();
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
-	private ArrayList<GameObject> sprites = new ArrayList<GameObject>();
+	private ArrayList<Sprite> sprites = new ArrayList<Sprite>();
 	
 	private int spawnGap = 37;
 	private int spawnRandom;
-	private int shooterChance = 77; //Random Prime
+	private int shooterChance = 77; 
 	private int shooterLimit = 7; //Limit to the number of shooter's on the screen at one time
-	private int shooterCount = 0;
 	
 	
 	private Player player;
@@ -54,9 +52,9 @@ public class Game extends BasicGameState {
 	}
 
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-//		backMusic = new Music("res/sound/levelTheme.ogg");
+		backMusic = new Music("res/sound/levelTheme.ogg");
 		if (first) {
-//			backMusic.loop();
+			backMusic.loop();
 			player = new Player();
 			scoreboard = new ScoreBoard();
 			lifebar = new LifeBar();
@@ -74,7 +72,7 @@ public class Game extends BasicGameState {
 		for (GameObject object : objectList) {
 			object.render(gc, g);
 		}
-		g.drawString("" + mapY, 500, 0);
+		g.drawString("" + player.getPos(), 200, 0);
 	}
 	
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
@@ -86,16 +84,13 @@ public class Game extends BasicGameState {
 		for (GameObject object : objectList) {
 			object.update(gc, delta);
 			if (object instanceof Sprite) {
-				sprites.add(object);
+				sprites.add((Sprite)object);
 			}
 			if (object instanceof Bullet) {
 				bullets.add((Bullet)object);
 			}
-			if (object instanceof Shooter) {
-				shooterCount++;
-			}
 		}
-		for (GameObject sprite : sprites) {
+		for (Sprite sprite : sprites) {
 			spriteCheck((Sprite)sprite);
 		}
 		for (GameObject object : addList) {
@@ -123,10 +118,9 @@ public class Game extends BasicGameState {
 	
 	public void spawnEnemies() throws SlickException {
 		spawnRandom = (int)(Math.random()*(16 * shooterChance));
-		if (shooterCount < shooterLimit && spawnRandom % shooterChance == 0) {
+		if (Shooter.getCount() < shooterLimit && spawnRandom % shooterChance == 0) {
 			addObject(new Shooter(((int)spawnRandom/shooterChance) * spawnGap, 0));
 		}
-		shooterCount = 0;
 	}
 	
 	
@@ -136,6 +130,12 @@ public class Game extends BasicGameState {
 				sprite.death();
 				removeObject(bullet);
 			}
+		}
+		for (Sprite newSprite : sprites) {
+			if (sprite == newSprite) {
+				continue;
+			}
+			sprite.collideMove(sprite.getCollide(newSprite));
 		}
 	}
 
