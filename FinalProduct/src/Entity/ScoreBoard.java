@@ -11,7 +11,7 @@ public class ScoreBoard extends GameObject {
 		super();
 	}
 	
-	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) {
+	public void render(GameContainer gc, Graphics g) {
 		g.drawString("Score : " + score, 10, 10);
 	}
 	

@@ -12,7 +12,8 @@ public class Player extends Sprite {
 	private final float FIRESPEED = 0.4f;   //Velocity of Bullets fired by Player
 	
 	private Input input; 
-	private int delay = 0;   //delay between Shooting/Animation-change
+	private int shootDelay = 0;   //shootDelay between Shooting/Animation-change
+	private int deathDelay = 0;
 	private Sound bulletSound; //Sound of Bullet fire
 	private Image left, right, defaultPos, shootForward;
 	private int delta;
@@ -46,6 +47,9 @@ public class Player extends Sprite {
 	}
 	
 	public void update(GameContainer gc, int delta) throws SlickException {
+		if (deathDelay > 0) {
+			deathDelay -= delta;
+		}
 		this.delta = delta;
 		input = gc.getInput(); //Gets input from my Game Container
 		playerMove();
@@ -74,39 +78,39 @@ public class Player extends Sprite {
 	
 	public void bulletFire() throws SlickException {
 		
-		if (delay <= 0) {
-			if (input.isKeyPressed(Input.KEY_Q)) {
-				getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, -45, FIRESPEED, 1300));
-				getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, -45, FIRESPEED, 1300));
-				
-				setAnimation("shootLeft");
-				bulletSound.play();
-				delay = 200;
-			} else if (input.isKeyPressed(Input.KEY_W)) {
-				getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 0, FIRESPEED, 1300));
-				getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 0, FIRESPEED, 1300));
-				
-				setAnimation("shoot");
-				bulletSound.play();
-				delay = 200;
-			} else if (input.isKeyPressed(Input.KEY_E)) {
-				getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 45, FIRESPEED, 1300));
-				getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 45, FIRESPEED, 1300));
-				
-				setAnimation("shootRight");
-				bulletSound.play();
-				delay = 200;
-			} else {
-				setAnimation("walk");
-			}
+		if (shootDelay > 0) {
+			shootDelay -= delta;
+		} else if (input.isKeyPressed(Input.KEY_Q)) {
+			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, -45, FIRESPEED, 1300));
+			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, -45, FIRESPEED, 1300));
+			
+			setAnimation("shootLeft");
+			bulletSound.play();
+			shootDelay = 200;
+		} else if (input.isKeyPressed(Input.KEY_W)) {
+			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 0, FIRESPEED, 1300));
+			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 0, FIRESPEED, 1300));
+			
+			setAnimation("shoot");
+			bulletSound.play();
+			shootDelay = 200;
+		} else if (input.isKeyPressed(Input.KEY_E)) {
+			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 45, FIRESPEED, 1300));
+			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 45, FIRESPEED, 1300));
+			
+			setAnimation("shootRight");
+			bulletSound.play();
+			shootDelay = 200;
 		} else {
-			delay -= delta;
+			setAnimation("walk");
 		}
 	}
 	
 	public void collideMove(int collideList) {
 		if (collideList != 0) {
-			death();
+			if (deathDelay <= 0) {
+				death();
+			} 
 		}
 		if (collideList == 1) {
 			changeY(MOVESPEED * delta);
@@ -125,6 +129,11 @@ public class Player extends Sprite {
 	
 	@Override
 	public void death() {
+		getWorld().getHealthBar().changeHealth(-1);
+		deathDelay = 1000;
 		
+		if (getWorld().getHealthBar().getHealth() == 0) {
+			getWorld().endGame();
+		}
 	}
 }

@@ -12,10 +12,10 @@ import World.Game;
 
 public class GameObject {
 	private Image image;
-	private Game world;
+	private static Game world;
 	private Vector2f position;
-	public int dir;
 	private float rotation;
+	private int dir;
 	
 	public GameObject() throws SlickException {
 		image = new Image("res/images/blank.png");
@@ -33,6 +33,9 @@ public class GameObject {
 		image.draw(position.x-(getWidth()/2), position.y-(getHeight()/2));
 	}
 	
+	public Image getImage() {
+		return image;
+	}
 	public int getWidth() {
 		return image.getWidth();
 	}
@@ -70,10 +73,7 @@ public class GameObject {
 	public void changeY(float y) {
 		position.y += y;
 	}
-	
-	public void setDir(int dir) {
-		this.dir = dir;
-	}
+
 	
 	public void setRot(float rot) {
 		rotation = rot;
@@ -87,13 +87,22 @@ public class GameObject {
 //		this.buffer = buffer;
 //	}
 	
-	public void setWorld(Game world) {
-		this.world = world;
+	public static void setWorld(Game world) {
+		GameObject.world = world;
 	}
 	
-	public Game getWorld() {
+	public static Game getWorld() {
 		return world;
 	}
+	
+	public void setDir(int dir) {
+		this.dir = dir;
+	}
+	
+	public int getDir() {
+		return dir;
+	}
+	
 	
 	public int getCollide(GameObject object) {
 		if (object.getPos().y - object.getHeight()/2 <= position.y + (getHeight()/2) && 

@@ -12,7 +12,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import Entity.Bullet;
 import Entity.GameObject;
-import Entity.LifeBar;
+import Entity.HealthBar;
 import Entity.Player;
 import Entity.ScoreBoard;
 import Entity.Shooter;
@@ -24,6 +24,7 @@ public class Game extends BasicGameState {
 	private int screenY;
 	private Music backMusic;
 	private boolean first = false;
+	private boolean end = false;
 	private int mapY;
 	private final float MAPSPEED = 0.0005f;
 	
@@ -34,15 +35,9 @@ public class Game extends BasicGameState {
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 	private ArrayList<Sprite> sprites = new ArrayList<Sprite>();
 	
-	private int spawnGap = 37;
-	private int spawnRandom;
-	private int shooterChance = 77; 
-	private int shooterLimit = 7; //Limit to the number of shooter's on the screen at one time
-	
-	
 	private Player player;
 	private ScoreBoard scoreboard;
-	private LifeBar lifebar;
+	private HealthBar healthbar;
 	
 	private Image map;
 	
@@ -52,15 +47,15 @@ public class Game extends BasicGameState {
 	}
 
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-		backMusic = new Music("res/sound/levelTheme.ogg");
+//		backMusic = new Music("res/sound/levelTheme.ogg");
 		if (first) {
-			backMusic.loop();
+//			backMusic.loop();
 			player = new Player();
 			scoreboard = new ScoreBoard();
-			lifebar = new LifeBar();
+			healthbar = new HealthBar();
 			addObject(player);
 			addObject(scoreboard);
-			addObject(lifebar);
+			addObject(healthbar);
 			
 			map = new Image("res/images/startMap.png");
 			mapY = -(map.getHeight() - screenY);
@@ -76,8 +71,12 @@ public class Game extends BasicGameState {
 	}
 	
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
-		spawnEnemies();
+		Shooter.spawn(delta);
 		updateObjects(gc, delta);
+		if (end) {
+			sbg.getState(2).init(gc, sbg);
+			sbg.enterState(2);
+		}
 	}
 	
 	public void updateObjects(GameContainer gc, int delta) throws SlickException {
@@ -116,11 +115,12 @@ public class Game extends BasicGameState {
 		removeList.add(object);
 	}
 	
-	public void spawnEnemies() throws SlickException {
-		spawnRandom = (int)(Math.random()*(16 * shooterChance));
-		if (Shooter.getCount() < shooterLimit && spawnRandom % shooterChance == 0) {
-			addObject(new Shooter(((int)spawnRandom/shooterChance) * spawnGap, 0));
-		}
+	public ScoreBoard getScoreBoard() {
+		return scoreboard;
+	}
+	
+	public HealthBar getHealthBar() {
+		return healthbar;
 	}
 	
 	
@@ -137,6 +137,10 @@ public class Game extends BasicGameState {
 			}
 			sprite.collideMove(sprite.getCollide(newSprite));
 		}
+	}
+	
+	public void endGame() {
+		end = true;
 	}
 
 	@Override

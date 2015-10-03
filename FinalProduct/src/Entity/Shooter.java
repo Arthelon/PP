@@ -5,15 +5,28 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
 public class Shooter extends Sprite {
-	private static final float FIRESPEED = 0.2f;
-	private static final float MOVESPEED = 0.2f;
+//	private static final float FIRESPEED = 0.2f;
+	private static final float MOVESPEED = 0.1f;
+	private static final int SCORE = 20;
+	private static final int SPAWNCHANCE = 77;
+	private static final int SPAWNGAP = 37;
+	private static final int SHOOTERLIMIT = 7; //Limit to the number of shooter's on the screen at one time
 	
-	private Image left, right, down, back;
+	private static int spawnRandom = 0;
 	private static int shooterCount = 0; 
+	private static int spawnDelay = 0;
+	
+	private int moveTime;
+	private int moveRandom;
+	private int delta;
+//	private Image left, right, down, back;
 	
 	public Shooter(float x, float y) throws SlickException {
 		super();
 		shooterCount++;
+		moveTime = 0;
+		delta = 0; 
+		moveRandom = 0;
 //		Image left = new Image("res/images/shooter/shootLeft.png");
 //		Image right = new Image("res/images/shooter/shootRight.png");
 //		Image back = new Image("res/images/shooter/shooterBack.png");
@@ -33,16 +46,79 @@ public class Shooter extends Sprite {
 	
 	@Override
 	public void update(GameContainer gc, int delta) throws SlickException {
-		movePattern(delta);
+		this.delta = delta;
+		movePattern();
 	}
 	
-	public void movePattern(int delta) {
+	public static void spawn(int delta) throws SlickException {
+		spawnRandom = (int)(Math.random()*(16 * SPAWNCHANCE));
+		if (spawnDelay > 0) {
+			spawnDelay -= delta;
+		} else if (Shooter.getCount() < SHOOTERLIMIT && spawnRandom % SPAWNCHANCE == 0) {
+			getWorld().addObject(new Shooter(((int)spawnRandom/SPAWNCHANCE) * SPAWNGAP, 0));
+			spawnDelay = 1000; //This ensures that there is at least a 1 second time-gap between each Shooter spawned.
+		}
+	}
+	
+	public void movePattern() {
+		if (moveTime <= 0) {
+			moveRandom = (int)(Math.random() * 15) + 1;
+			switch (moveRandom) {
+				case 1 : case 15 :
+					setDir(1);
+					break;
+				case 2: case 3: case 4: case 5: 
+					setDir(3);
+					break;
+				case 6: case 7: case 8: 
+					setDir(2);
+					break;
+				case 9: case 10: case 11:
+					setDir(4);
+					break;
+				case 12: case 13: case 14: 
+					setDir(0);
+			}
+			moveTime = 1000;
+		} else {
+			moveTime-= delta;
+		}
 		
+		
+		if (getDir() == 1 || getPos().y > 700 - getHeight() / 2) {
+			changeY(-MOVESPEED * delta);
+		}
+		if (getDir() == 3 || getPos().y < getHeight() / 2) {
+			changeY(MOVESPEED * delta);
+		}
+		if (getDir() == 4 || getPos().x > 592 - getWidth() / 2) {
+			changeX(-MOVESPEED * delta);
+		}
+		if (getDir() == 2 || getPos().x < getWidth() / 2) {
+			changeX(MOVESPEED * delta);
+		}
+	}
+	
+	public void collideMove(int collideList) {
+		if (collideList == 1) {
+			changeY(MOVESPEED * delta);
+		} 
+		if (collideList == 2) {
+			changeX(-MOVESPEED * delta);
+		}
+		if (collideList == 3) {
+			changeY(-MOVESPEED * delta);
+		}
+		if (collideList == 4) {
+			changeX(MOVESPEED * delta);
+		}
 	}
 	
 	public void death() {
+		setDir(0);
 		deathAnimation();
 		shooterCount--;
+		getWorld().getScoreBoard().addScore(SCORE);
 	}
 	
 	public static int getCount() {

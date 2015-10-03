@@ -31,7 +31,7 @@ public class Main extends StateBasedGame {
 		AppGameContainer container;
 		try {
 			container = new AppGameContainer(new Main());
-//			container.setShowFPS(false);
+			container.setShowFPS(false);
 			container.setTargetFrameRate(60);
 			container.setDisplayMode(screenX, screenY, false);
 			container.start();
