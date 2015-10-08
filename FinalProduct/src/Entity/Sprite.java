@@ -11,8 +11,12 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 public class Sprite extends GameObject {
-	private HashMap<String, Animation> animation = new HashMap<String, Animation>();
+	
+	//HashMap data structure holding Sprite animations ; Stores String keys that corresponds to different Animation Objects
+	private HashMap<String, Animation> animation = new HashMap<String, Animation>(); 
 	private Animation currentAnimation;
+	private int immune = 0;
+	private boolean alive = true;
 	
 	public Sprite() throws SlickException {
 		currentAnimation = null;
@@ -21,7 +25,8 @@ public class Sprite extends GameObject {
 	
 	@Override
 	public void render(GameContainer gc, Graphics g) {
-		currentAnimation.draw(getPos().x-(getWidth()/2), getPos().y-(getHeight()/2));
+		currentAnimation.draw(getPos().x-(getWidth()/2), getPos().y-(getHeight()/2)); 
+		//Removes Sprite from Game if it's animation stops
 		if (currentAnimation.isStopped()) {
 			getWorld().removeObject(this);
 		}
@@ -37,11 +42,16 @@ public class Sprite extends GameObject {
 	}
 	
 	
+	public Animation getAnimation() {
+		return currentAnimation;
+	}
+	
+	
 	public void setAnimation(String key) {
 		currentAnimation = animation.get(key);
 	}
 	
-	public void death() {
+	public void death() throws SlickException {
 		
 	}
 	
@@ -49,12 +59,17 @@ public class Sprite extends GameObject {
 		currentAnimation = animation.get("death");
 		currentAnimation.setLooping(false);
 	}
-	
+	//Make Immune unique to Player
+	//
 	public void collideMove(int collideList) {
 
 	}
 	
-	public Animation getAnimation() {
-		return currentAnimation;
+	public boolean getAlive() {
+		return alive;
+	}
+	
+	public void setAlive(boolean alive) {
+		this.alive = alive;
 	}
 }

@@ -11,14 +11,15 @@ import org.newdawn.slick.geom.Vector2f;
 import World.Game;
 
 public class GameObject {
-	private Image image;
-	private static Game world;
-	private Vector2f position;
-	private float rotation;
+	private Image image; //Image representing the Object
+	private static Game world; //Reference to the "Game" class
+	private Vector2f position; //Coordinates of the center of the Object image relative to screen.
+	private float rotation; //Rotation of image (degrees)
 	private int dir;
+	private Vector2f velocity; //Direction vector of this object
 	
 	public GameObject() throws SlickException {
-		image = new Image("res/images/blank.png");
+		image = new Image("res/images/blank.png"); //filler image
 		dir = 0;
 		position = new Vector2f(0, 0);
 		rotation = 0;
@@ -30,7 +31,15 @@ public class GameObject {
 	
 	public void render(GameContainer gc, Graphics g) {
 		image.setRotation(rotation);
-		image.draw(position.x-(getWidth()/2), position.y-(getHeight()/2));
+		image.draw(position.x-(getWidth()/2), position.y-(getHeight()/2)); //draws Object image around the center of it's position coordinates
+	}
+	
+	public static void setWorld(Game world) {
+		GameObject.world = world;
+	}
+	
+	public static Game getWorld() {
+		return world;
 	}
 	
 	public Image getImage() {
@@ -83,18 +92,6 @@ public class GameObject {
 		return rotation;
 	}
 	
-//	public void setBuffer(int buffer) {
-//		this.buffer = buffer;
-//	}
-	
-	public static void setWorld(Game world) {
-		GameObject.world = world;
-	}
-	
-	public static Game getWorld() {
-		return world;
-	}
-	
 	public void setDir(int dir) {
 		this.dir = dir;
 	}
@@ -111,6 +108,6 @@ public class GameObject {
 				object.getPos().y + object.getHeight()/2 >= position.y - (getHeight()/2)) {
 			return dir;
 		} 
-		return 0;
+		return -1;
 	}
 }

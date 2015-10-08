@@ -12,18 +12,20 @@ public class Shooter extends Sprite {
 	private static final int SPAWNGAP = 37;
 	private static final int SHOOTERLIMIT = 7; //Limit to the number of shooter's on the screen at one time
 	
-	private static int spawnRandom = 0;
+	private static int random = 0;
 	private static int shooterCount = 0; 
 	private static int spawnDelay = 0;
 	
 	private int moveTime;
 	private int moveRandom;
 	private int delta;
+	private int spawnImmunity;
 //	private Image left, right, down, back;
 	
 	public Shooter(float x, float y) throws SlickException {
 		super();
 		shooterCount++;
+		spawnImmunity = 500;
 		moveTime = 0;
 		delta = 0; 
 		moveRandom = 0;
@@ -47,15 +49,20 @@ public class Shooter extends Sprite {
 	@Override
 	public void update(GameContainer gc, int delta) throws SlickException {
 		this.delta = delta;
-		movePattern();
+		if (spawnImmunity > 0) {
+			spawnImmunity -= delta;
+		}
+		if (getAlive()) {
+			movePattern();
+		} 
 	}
 	
 	public static void spawn(int delta) throws SlickException {
-		spawnRandom = (int)(Math.random()*(16 * SPAWNCHANCE));
+		random = (int)(Math.random()*(16 * SPAWNCHANCE));
 		if (spawnDelay > 0) {
 			spawnDelay -= delta;
-		} else if (Shooter.getCount() < SHOOTERLIMIT && spawnRandom % SPAWNCHANCE == 0) {
-			getWorld().addObject(new Shooter(((int)spawnRandom/SPAWNCHANCE) * SPAWNGAP, 0));
+		} else if (Shooter.getCount() < SHOOTERLIMIT && random % SPAWNCHANCE == 0) {
+			getWorld().addObject(new Shooter(((int)random/SPAWNCHANCE) * SPAWNGAP, 0));
 			spawnDelay = 1000; //This ensures that there is at least a 1 second time-gap between each Shooter spawned.
 		}
 	}
@@ -85,7 +92,7 @@ public class Shooter extends Sprite {
 		}
 		
 		
-		if (getDir() == 1 || getPos().y > 700 - getHeight() / 2) {
+		if (getDir() == 1) {
 			changeY(-MOVESPEED * delta);
 		}
 		if (getDir() == 3 || getPos().y < getHeight() / 2) {
@@ -97,28 +104,43 @@ public class Shooter extends Sprite {
 		if (getDir() == 2 || getPos().x < getWidth() / 2) {
 			changeX(MOVESPEED * delta);
 		}
+		
+		if (getPos().y > 700 - getHeight() / 2) {
+			getWorld().removeObject(this);
+		}
 	}
 	
 	public void collideMove(int collideList) {
-		if (collideList == 1) {
+		if (collideList%10 == 1) {
 			changeY(MOVESPEED * delta);
 		} 
-		if (collideList == 2) {
+		if (collideList%10 == 2) {
 			changeX(-MOVESPEED * delta);
 		}
-		if (collideList == 3) {
+		if (collideList%10 == 3) {
 			changeY(-MOVESPEED * delta);
 		}
-		if (collideList == 4) {
+		if (collideList%10 == 4) {
 			changeX(MOVESPEED * delta);
 		}
 	}
 	
-	public void death() {
-		setDir(0);
-		deathAnimation();
-		shooterCount--;
-		getWorld().getScoreBoard().addScore(SCORE);
+	
+	public void death() throws SlickException {
+		if (spawnImmunity <= 0) {
+			deathAnimation();
+			setAlive(false);
+			random = (int)(Math.random() * 20) + 1;
+			if (random == 9) {
+				getWorld().addObject(new PowerHealth(getPos()));
+			} else if (random / 5 == 0) {
+				getWorld().addObject(new PowerMoney(getPos()));
+			}
+			
+			
+			shooterCount--;
+			getWorld().getScoreBoard().addScore(SCORE);
+		}
 	}
 	
 	public static int getCount() {

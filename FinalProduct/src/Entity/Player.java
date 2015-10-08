@@ -13,10 +13,10 @@ public class Player extends Sprite {
 	
 	private Input input; 
 	private int shootDelay = 0;   //shootDelay between Shooting/Animation-change
-	private int deathDelay = 0;
 	private Sound bulletSound; //Sound of Bullet fire
 	private Image left, right, defaultPos, shootForward;
 	private int delta;
+	private int immune = 0;
 	
 	public Player() throws SlickException {
 		delta = 0;
@@ -47,8 +47,8 @@ public class Player extends Sprite {
 	}
 	
 	public void update(GameContainer gc, int delta) throws SlickException {
-		if (deathDelay > 0) {
-			deathDelay -= delta;
+		if (immune > 0) {
+			immune -= delta;
 		}
 		this.delta = delta;
 		input = gc.getInput(); //Gets input from my Game Container
@@ -73,7 +73,6 @@ public class Player extends Sprite {
 			changeX(MOVESPEED * delta);
 			setDir(2);
 		}
-//		collideList = "";
 	}
 	
 	public void bulletFire() throws SlickException {
@@ -106,22 +105,23 @@ public class Player extends Sprite {
 		}
 	}
 	
+	@Override
 	public void collideMove(int collideList) {
-		if (collideList != 0) {
-			if (deathDelay <= 0) {
+		if (collideList >= 0 && collideList <= 4) {
+			if (immune <= 0) {
 				death();
 			} 
 		}
-		if (collideList == 1) {
+		if (collideList/10 == 1) {
 			changeY(MOVESPEED * delta);
 		} 
-		if (collideList == 2) {
+		if (collideList/10 == 2) {
 			changeX(-MOVESPEED * delta);
 		}
-		if (collideList == 3) {
+		if (collideList/10 == 3) {
 			changeY(-MOVESPEED * delta);
 		}
-		if (collideList == 4) {
+		if (collideList/10 == 4) {
 			changeX(MOVESPEED * delta);
 		}
 	}
@@ -130,10 +130,11 @@ public class Player extends Sprite {
 	@Override
 	public void death() {
 		getWorld().getHealthBar().changeHealth(-1);
-		deathDelay = 1000;
+		immune = 1000;
 		
 		if (getWorld().getHealthBar().getHealth() == 0) {
+			setAlive(false);
 			getWorld().endGame();
-		}
+		} 
 	}
 }

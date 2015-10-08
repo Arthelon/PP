@@ -4,11 +4,10 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
-import org.newdawn.slick.state.StateBasedGame;
 
 public class Bullet extends GameObject {
 	private float speed;
-	private int time = 0;
+	private int time;
 	private int limit;
 	
 	public Bullet(Vector2f pos, float rot, float speed, int limit) throws SlickException {
@@ -16,6 +15,7 @@ public class Bullet extends GameObject {
 		setImage(new Image("res/images/bullet.png"));
 		setPos(pos.x - getWidth()/2, pos.y - getHeight()/2);
 		setRot(rot);
+		time = 0;
 		this.speed = speed;
 		this.limit = limit;
 	}
@@ -37,7 +37,7 @@ public class Bullet extends GameObject {
 	}
 	
 	public boolean getImmune() {
-		if (time <= 200) return true;
+		if (time <= 100) return true;
 		return false;
 	}
 
