@@ -15,7 +15,6 @@ public class Sprite extends GameObject {
 	//HashMap data structure holding Sprite animations ; Stores String keys that corresponds to different Animation Objects
 	private HashMap<String, Animation> animation = new HashMap<String, Animation>(); 
 	private Animation currentAnimation;
-	private int immune = 0;
 	private boolean alive = true;
 	
 	public Sprite() throws SlickException {
@@ -61,7 +60,7 @@ public class Sprite extends GameObject {
 	}
 	//Make Immune unique to Player
 	//
-	public void collideMove(int collideList) {
+	public void collideMove(Vector2f collideList, boolean alive) {
 
 	}
 	

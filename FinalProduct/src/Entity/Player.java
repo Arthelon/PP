@@ -5,6 +5,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
+import org.newdawn.slick.geom.Vector2f;
 
 public class Player extends Sprite {
 	
@@ -57,22 +58,22 @@ public class Player extends Sprite {
 	}
 	
 	public void playerMove() {
+		setV(0, 0);
 		if (input.isKeyDown(Input.KEY_UP) || getPos().y > 700 - getHeight() / 2) {
-			changeY(-MOVESPEED * delta);
-			setDir(1);
+			setV(getV().x, -MOVESPEED * delta);
 		}
 		if (input.isKeyDown(Input.KEY_DOWN) || getPos().y < getHeight() / 2) {
-			changeY(MOVESPEED * delta);
-			setDir(3);
+			setV(getV().x, MOVESPEED * delta);
 		}
 		if (input.isKeyDown(Input.KEY_LEFT) || getPos().x > 592 - getWidth() / 2) {
-			changeX(-MOVESPEED * delta);
-			setDir(4);
+			setV(-MOVESPEED * delta, getV().y);
 		}
 		if (input.isKeyDown(Input.KEY_RIGHT) || getPos().x < getWidth() / 2) {
-			changeX(MOVESPEED * delta);
-			setDir(2);
+			setV(MOVESPEED * delta, getV().y);
 		}
+		
+		changeX(getV().x);
+		changeY(getV().y);
 	}
 	
 	public void bulletFire() throws SlickException {
@@ -106,24 +107,15 @@ public class Player extends Sprite {
 	}
 	
 	@Override
-	public void collideMove(int collideList) {
-		if (collideList >= 0 && collideList <= 4) {
-			if (immune <= 0) {
-				death();
-			} 
+	public void collideMove(Vector2f collideV, boolean alive) {
+		if (alive && immune <= 0) {
+			death();
 		}
-		if (collideList/10 == 1) {
-			changeY(MOVESPEED * delta);
-		} 
-		if (collideList/10 == 2) {
-			changeX(-MOVESPEED * delta);
-		}
-		if (collideList/10 == 3) {
-			changeY(-MOVESPEED * delta);
-		}
-		if (collideList/10 == 4) {
-			changeX(MOVESPEED * delta);
-		}
+		getV().sub(collideV);
+		getV().set(getV().x*-1, getV().y*-1);
+		
+		changeX(getV().x);
+		changeY(getV().y);
 	}
 	
 	

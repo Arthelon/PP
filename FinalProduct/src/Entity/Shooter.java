@@ -3,6 +3,7 @@ package Entity;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Vector2f;
 
 public class Shooter extends Sprite {
 //	private static final float FIRESPEED = 0.2f;
@@ -16,6 +17,7 @@ public class Shooter extends Sprite {
 	private static int shooterCount = 0; 
 	private static int spawnDelay = 0;
 	
+	private int dir;
 	private int moveTime;
 	private int moveRandom;
 	private int delta;
@@ -68,23 +70,24 @@ public class Shooter extends Sprite {
 	}
 	
 	public void movePattern() {
+		setV(0, 0);
 		if (moveTime <= 0) {
 			moveRandom = (int)(Math.random() * 15) + 1;
 			switch (moveRandom) {
 				case 1 : case 15 :
-					setDir(1);
+					dir = 1;
 					break;
 				case 2: case 3: case 4: case 5: 
-					setDir(3);
+					dir = 3;
 					break;
 				case 6: case 7: case 8: 
-					setDir(2);
+					dir = 2;
 					break;
 				case 9: case 10: case 11:
-					setDir(4);
+					dir = 4;
 					break;
 				case 12: case 13: case 14: 
-					setDir(0);
+					dir = 0;
 			}
 			moveTime = 1000;
 		} else {
@@ -92,37 +95,33 @@ public class Shooter extends Sprite {
 		}
 		
 		
-		if (getDir() == 1) {
-			changeY(-MOVESPEED * delta);
+		if (dir == 1) {
+			setV(getV().x, -MOVESPEED * delta);
 		}
-		if (getDir() == 3 || getPos().y < getHeight() / 2) {
-			changeY(MOVESPEED * delta);
+		if (dir == 3 || getPos().y < getHeight() / 2) {
+			setV(getV().x, MOVESPEED * delta);
 		}
-		if (getDir() == 4 || getPos().x > 592 - getWidth() / 2) {
-			changeX(-MOVESPEED * delta);
+		if (dir == 4 || getPos().x > 592 - getWidth() / 2) {
+			setV(-MOVESPEED * delta, getV().y);
 		}
-		if (getDir() == 2 || getPos().x < getWidth() / 2) {
-			changeX(MOVESPEED * delta);
+		if (dir == 2 || getPos().x < getWidth() / 2) {
+			setV(MOVESPEED * delta, getV().y);
 		}
 		
 		if (getPos().y > 700 - getHeight() / 2) {
 			getWorld().removeObject(this);
 		}
+		
+		changeX(getV().x);
+		changeY(getV().y);
 	}
 	
-	public void collideMove(int collideList) {
-		if (collideList%10 == 1) {
-			changeY(MOVESPEED * delta);
-		} 
-		if (collideList%10 == 2) {
-			changeX(-MOVESPEED * delta);
-		}
-		if (collideList%10 == 3) {
-			changeY(-MOVESPEED * delta);
-		}
-		if (collideList%10 == 4) {
-			changeX(MOVESPEED * delta);
-		}
+	public void collideMove(Vector2f collideV, boolean alive) {
+		getV().sub(collideV);
+		getV().set(getV().x*-1, getV().y*-1);
+		
+		changeX(getV().x);
+		changeY(getV().y);
 	}
 	
 	

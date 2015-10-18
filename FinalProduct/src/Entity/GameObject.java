@@ -15,14 +15,13 @@ public class GameObject {
 	private static Game world; //Reference to the "Game" class
 	private Vector2f position; //Coordinates of the center of the Object image relative to screen.
 	private float rotation; //Rotation of image (degrees)
-	private int dir;
 	private Vector2f velocity; //Direction vector of this object
 	
 	public GameObject() throws SlickException {
 		image = new Image("res/images/blank.png"); //filler image
-		dir = 0;
 		position = new Vector2f(0, 0);
 		rotation = 0;
+		velocity = new Vector2f(0, 0);
 	}
 	
 	public void update(GameContainer gc, int delta) throws SlickException {
@@ -92,22 +91,23 @@ public class GameObject {
 		return rotation;
 	}
 	
-	public void setDir(int dir) {
-		this.dir = dir;
+	public void setV(float x, float y) {
+		velocity.x = x;
+		velocity.y = y;
 	}
 	
-	public int getDir() {
-		return dir;
+	public Vector2f getV() {
+		return velocity;
 	}
 	
 	
-	public int getCollide(GameObject object) {
+	public Vector2f getCollide(GameObject object) {
 		if (object.getPos().y - object.getHeight()/2 <= position.y + (getHeight()/2) && 
 				object.getPos().x + object.getWidth()/2 >= position.x - (getWidth()/2) &&
 				object.getPos().x - object.getWidth()/2 <= position.x + (getWidth()/2) &&
 				object.getPos().y + object.getHeight()/2 >= position.y - (getHeight()/2)) {
-			return dir;
+			return object.getV();
 		} 
-		return -1;
+		return null;
 	}
 }

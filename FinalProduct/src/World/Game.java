@@ -137,15 +137,15 @@ public class Game extends BasicGameState {
 					removeObject(checkObject);
 				}
 			} 
-			if(checkObject instanceof Sprite) {
+			if(checkObject instanceof Sprite && sprite.getCollide(checkObject) != null) {
 				if (!((Sprite) checkObject).getAlive()) {
-					sprite.collideMove(sprite.getCollide(checkObject)*10);
+					sprite.collideMove(sprite.getCollide(checkObject), false);
 				} else {
-					sprite.collideMove(sprite.getCollide(checkObject));
+					sprite.collideMove(sprite.getCollide(checkObject), true);
 				}
 			} 
 			
-			if(sprite instanceof Player && checkObject instanceof PowerUp && sprite.getCollide(checkObject) > 0) {
+			if(sprite instanceof Player && checkObject instanceof PowerUp && sprite.getCollide(checkObject) != null) {
 				((PowerUp)checkObject).activate();
 				removeObject(checkObject);
 			}
