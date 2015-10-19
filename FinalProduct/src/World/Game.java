@@ -7,6 +7,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Music;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -28,7 +29,7 @@ public class Game extends BasicGameState {
 	private boolean first = false; //Toggle for first initiation of Game class
 	private boolean end = false; 
 	private int mapY; //Y coordinate of background-map
-	private final float MAPSPEED = 0.0005f; //Rate at which map moves upwards
+	private final float MAPSPEED = 0.05f; //Rate at which map moves upwards
 	
 	//ArrayLists holding Game Objects
 	private ArrayList<GameObject> objectList = new ArrayList<GameObject>();
@@ -75,6 +76,7 @@ public class Game extends BasicGameState {
 	
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
 		Shooter.spawn(delta);
+		Fence.spawn(delta);
 		updateObjects(gc, delta);
 		if (end) {
 			sbg.getState(2).init(gc, sbg); //Initializes End class
@@ -109,6 +111,10 @@ public class Game extends BasicGameState {
 		removeList.clear();
 	}
 	
+	public Vector2f getPlayerPos() {
+		return player.getPos();
+	}
+	
 	public void addObject(GameObject object) {
 		addList.add(object);
 	}
@@ -133,21 +139,27 @@ public class Game extends BasicGameState {
 			}
 			if (checkObject instanceof Bullet) {
 				if (!((Bullet)checkObject).getImmune() && sprite.collide(checkObject.getPos())) {
-					sprite.death();
-					removeObject(checkObject);
+					if (((Bullet)checkObject).isEnemyFired() && sprite instanceof Shooter) {
+						
+					} else {
+						sprite.death();
+						removeObject(checkObject);
+					}
 				}
+				continue;
 			} 
-			if(checkObject instanceof Sprite && sprite.getCollide(checkObject) != null) {
-				if (!((Sprite) checkObject).getAlive()) {
+			if((checkObject instanceof Sprite || checkObject instanceof Fence) && sprite.getCollide(checkObject) != null) {
+				if (checkObject instanceof Fence || !((Sprite) checkObject).getAlive()) {
 					sprite.collideMove(sprite.getCollide(checkObject), false);
 				} else {
 					sprite.collideMove(sprite.getCollide(checkObject), true);
 				}
+				continue;
 			} 
-			
 			if(sprite instanceof Player && checkObject instanceof PowerUp && sprite.getCollide(checkObject) != null) {
 				((PowerUp)checkObject).activate();
 				removeObject(checkObject);
+				continue;
 			}
 		}
 	}

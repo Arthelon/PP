@@ -59,21 +59,34 @@ public class Player extends Sprite {
 	
 	public void playerMove() {
 		setV(0, 0);
-		if (input.isKeyDown(Input.KEY_UP) || getPos().y > 700 - getHeight() / 2) {
+		if (input.isKeyDown(Input.KEY_UP)) {
 			setV(getV().x, -MOVESPEED * delta);
 		}
-		if (input.isKeyDown(Input.KEY_DOWN) || getPos().y < getHeight() / 2) {
+		if (input.isKeyDown(Input.KEY_DOWN)) {
 			setV(getV().x, MOVESPEED * delta);
 		}
-		if (input.isKeyDown(Input.KEY_LEFT) || getPos().x > 592 - getWidth() / 2) {
+		if (input.isKeyDown(Input.KEY_LEFT)) {
 			setV(-MOVESPEED * delta, getV().y);
 		}
-		if (input.isKeyDown(Input.KEY_RIGHT) || getPos().x < getWidth() / 2) {
+		if (input.isKeyDown(Input.KEY_RIGHT)) {
 			setV(MOVESPEED * delta, getV().y);
 		}
 		
 		changeX(getV().x);
 		changeY(getV().y);
+		
+		if (getPos().y > 700 - getHeight() / 2) {
+			changeY(-MOVESPEED * delta);
+		}
+		if (getPos().y < getHeight() / 2) {
+			changeY(MOVESPEED * delta);
+		}
+		if (getPos().x > 592 - getWidth() / 2) {
+			changeX(-MOVESPEED * delta);
+		}
+		if (getPos().x < getWidth() / 2) {
+			changeX(MOVESPEED * delta);
+		}
 	}
 	
 	public void bulletFire() throws SlickException {
@@ -121,7 +134,7 @@ public class Player extends Sprite {
 	
 	@Override
 	public void death() {
-		getWorld().getHealthBar().changeHealth(-1);
+//		getWorld().getHealthBar().changeHealth(-1);
 		immune = 1000;
 		
 		if (getWorld().getHealthBar().getHealth() == 0) {

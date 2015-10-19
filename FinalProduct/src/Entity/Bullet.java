@@ -9,6 +9,7 @@ public class Bullet extends GameObject {
 	private float speed;
 	private int time;
 	private int limit;
+	private boolean enemyFired = false;
 	
 	public Bullet(Vector2f pos, float rot, float speed, int limit) throws SlickException {
 		super();
@@ -34,6 +35,14 @@ public class Bullet extends GameObject {
 		if (time >= limit) {
 			getWorld().removeObject(this);
 		}
+	}
+	
+	public boolean isEnemyFired() {
+		return enemyFired;
+	}
+	
+	public void setEnemyFired(boolean enemyFired) {
+		this.enemyFired = enemyFired;
 	}
 	
 	public boolean getImmune() {

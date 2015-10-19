@@ -1,46 +1,54 @@
 package Entity;
 
+import static java.lang.Math.atan2;
+import static java.lang.Math.toDegrees;
+
+import java.util.Random;
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 public class Shooter extends Sprite {
-//	private static final float FIRESPEED = 0.2f;
+	private static final float SHOOTSPEED = 0.2f;
 	private static final float MOVESPEED = 0.1f;
 	private static final int SCORE = 20;
 	private static final int SPAWNCHANCE = 77;
 	private static final int SPAWNGAP = 37;
 	private static final int SHOOTERLIMIT = 7; //Limit to the number of shooter's on the screen at one time
 	
-	private static int random = 0;
 	private static int shooterCount = 0; 
 	private static int spawnDelay = 0;
+	private static Random randomGen = new Random();
 	
-	private int dir;
-	private int moveTime;
-	private int moveRandom;
-	private int delta;
-	private int spawnImmunity;
+	private int dir = 0;
+	private int moveTime = 0;
+	private int moveRandom = 0;
+	private int delta = 0;
+	private int spawnImmunity = 500;
+	private int shootDelay = 0;
 //	private Image left, right, down, back;
 	
 	public Shooter(float x, float y) throws SlickException {
 		super();
 		shooterCount++;
-		spawnImmunity = 500;
-		moveTime = 0;
-		delta = 0; 
-		moveRandom = 0;
-//		Image left = new Image("res/images/shooter/shootLeft.png");
-//		Image right = new Image("res/images/shooter/shootRight.png");
-//		Image back = new Image("res/images/shooter/shooterBack.png");
+		Image left = new Image("res/images/shooter/shooterLeft.png");
+		Image right = new Image("res/images/shooter/shooterRight.png");
+		Image back = new Image("res/images/shooter/shooterBack.png");
 		Image down = new Image("res/images/shooter/shooter.png");
 		
 		Image[] shootDown = {down, new Image("res/images/shooter/shooter1.png"), down, new Image("res/images/shooter/shooter2.png")};
+		Image[] shootUp = {back, new Image("res/images/shooter/shooterBack1.png"), back, new Image("res/images/shooter/shooterBack2.png")};
+		Image[] shootLeft = {left, new Image("res/images/shooter/shooterLeft1.png"), left, new Image("res/images/shooter/shooterLeft2.png")};
+		Image[] shootRight = {right, new Image("res/images/shooter/shooterRight1.png"), right, new Image("res/images/shooter/shooterRight2.png")};
 		Image[] death = {new Image("res/images/shooter/shooterDeath.png")};
 		
-		addAnimation(death, 600, "death");
 		addAnimation(shootDown, 200, "shootDown");
+		addAnimation(shootUp, 200, "shootUp");
+		addAnimation(shootLeft, 200, "shootLeft");
+		addAnimation(shootRight, 200, "shootRight");
+		addAnimation(death, 600, "death");
 		
 		setAnimation("shootDown");
 		
@@ -55,12 +63,40 @@ public class Shooter extends Sprite {
 			spawnImmunity -= delta;
 		}
 		if (getAlive()) {
-			movePattern();
+			moveShooter();
+			shootPlayer();
 		} 
 	}
 	
+	public void shootPlayer() throws SlickException {
+		int random = randomGen.nextInt(10);
+		float dX = getWorld().getPlayerPos().x - getPos().x;
+		float dY = getWorld().getPlayerPos().y - getPos().y;
+		
+		int angle = (int) toDegrees(atan2(dY,dX)) + 90;
+		if (shootDelay > 0) {
+			shootDelay -= delta;
+		} else if (random <= 4) {
+
+			Bullet bullet = new Bullet(getPos().x, getPos().y, angle, SHOOTSPEED, 1300);
+			bullet.setEnemyFired(true);
+			getWorld().addObject(bullet);
+			shootDelay = 1000;
+		}
+		
+		if (angle >= 45 && angle < 135) {
+			setAnimation("shootRight");
+		} else if (angle >= 135 && angle < 225) {
+			setAnimation("shootDown");
+		} else if (angle >= 225 && angle < 315) {
+			setAnimation("shootLeft");
+		} else {
+			setAnimation("shootUp");
+		}
+	}
+	
 	public static void spawn(int delta) throws SlickException {
-		random = (int)(Math.random()*(16 * SPAWNCHANCE));
+		int random = randomGen.nextInt(16*SPAWNCHANCE);
 		if (spawnDelay > 0) {
 			spawnDelay -= delta;
 		} else if (Shooter.getCount() < SHOOTERLIMIT && random % SPAWNCHANCE == 0) {
@@ -69,7 +105,7 @@ public class Shooter extends Sprite {
 		}
 	}
 	
-	public void movePattern() {
+	public void moveShooter() {
 		setV(0, 0);
 		if (moveTime <= 0) {
 			moveRandom = (int)(Math.random() * 15) + 1;
@@ -98,18 +134,28 @@ public class Shooter extends Sprite {
 		if (dir == 1) {
 			setV(getV().x, -MOVESPEED * delta);
 		}
-		if (dir == 3 || getPos().y < getHeight() / 2) {
+		if (dir == 3) {
 			setV(getV().x, MOVESPEED * delta);
 		}
-		if (dir == 4 || getPos().x > 592 - getWidth() / 2) {
+		if (dir == 4) {
 			setV(-MOVESPEED * delta, getV().y);
 		}
-		if (dir == 2 || getPos().x < getWidth() / 2) {
+		if (dir == 2) {
 			setV(MOVESPEED * delta, getV().y);
 		}
 		
-		if (getPos().y > 700 - getHeight() / 2) {
+		if (getPos().x < getWidth() / 2) {
+			changeX(MOVESPEED * delta);
+		}
+		if (getPos().x > 592 - getWidth() / 2) {
+			changeX(-MOVESPEED * delta);
+		}
+		if (getPos().y < getHeight() / 2) {
+			changeY(MOVESPEED * delta);
+		}
+		if (getPos().y > 700 + getHeight() / 2) {
 			getWorld().removeObject(this);
+			shooterCount--;
 		}
 		
 		changeX(getV().x);
@@ -129,7 +175,7 @@ public class Shooter extends Sprite {
 		if (spawnImmunity <= 0) {
 			deathAnimation();
 			setAlive(false);
-			random = (int)(Math.random() * 20) + 1;
+			int random = randomGen.nextInt(20) + 1;
 			if (random == 9) {
 				getWorld().addObject(new PowerHealth(getPos()));
 			} else if (random / 5 == 0) {
