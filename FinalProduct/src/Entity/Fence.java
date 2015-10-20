@@ -23,7 +23,7 @@ public class Fence extends GameObject {
 		} else {
 			int random = randomGen.nextInt(60);
 			if (random <= 11) {
-				getWorld().addObject(new Fence(random * 48, 8));
+				getWorld().addObject(new Fence(random * 48, -8));
 			}
 			delay = 1000;
 		}

@@ -74,9 +74,10 @@ public class Start extends BasicGameState {
 			fadeToBlack.init(sbg.getState(0), sbg.getState(1));
 			start = true;
 		}
-		
-		time += delta;
-		if (time >= 1400) {
+		if (!start) {
+			time += delta;
+		}
+		if (time >= 1400 || start) {
 			time = 0;
 		}
 		if (start) {

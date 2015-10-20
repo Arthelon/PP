@@ -29,7 +29,7 @@ public class Game extends BasicGameState {
 	private boolean first = false; //Toggle for first initiation of Game class
 	private boolean end = false; 
 	private int mapY; //Y coordinate of background-map
-	private final float MAPSPEED = 0.05f; //Rate at which map moves upwards
+	private final float MAPSPEED = 0.0005f; //Rate at which map moves upwards
 	
 	//ArrayLists holding Game Objects
 	private ArrayList<GameObject> objectList = new ArrayList<GameObject>();
@@ -104,8 +104,9 @@ public class Game extends BasicGameState {
 		for (GameObject object : removeList) {
 			objectList.remove(object);
 		}
-		mapY += delta * MAPSPEED;
-		
+		if (mapY + MAPSPEED * delta < 0) {
+			mapY += delta * MAPSPEED;
+		}
 		collideAble.clear();
 		addList.clear();
 		removeList.clear();

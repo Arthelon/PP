@@ -23,6 +23,7 @@ public class Shooter extends Sprite {
 	private static Random randomGen = new Random();
 	
 	private int dir = 0;
+	private int shootAngle = 0;
 	private int moveTime = 0;
 	private int moveRandom = 0;
 	private int delta = 0;
@@ -73,22 +74,23 @@ public class Shooter extends Sprite {
 		float dX = getWorld().getPlayerPos().x - getPos().x;
 		float dY = getWorld().getPlayerPos().y - getPos().y;
 		
-		int angle = (int) toDegrees(atan2(dY,dX)) + 90;
-		if (shootDelay > 0) {
+		if (shootDelay <= 0) {
+			shootAngle = (int) toDegrees(atan2(dY,dX)) + 90;
+			if (random <= 4) {
+				Bullet bullet = new Bullet(getPos().x, getPos().y, shootAngle, SHOOTSPEED, 1300);
+				bullet.setEnemyFired(true);
+				getWorld().addObject(bullet);
+			}
+			shootDelay = 750;
+		} else {
 			shootDelay -= delta;
-		} else if (random <= 4) {
-
-			Bullet bullet = new Bullet(getPos().x, getPos().y, angle, SHOOTSPEED, 1300);
-			bullet.setEnemyFired(true);
-			getWorld().addObject(bullet);
-			shootDelay = 1000;
 		}
 		
-		if (angle >= 45 && angle < 135) {
+		if (shootAngle >= 45 && shootAngle < 135) {
 			setAnimation("shootRight");
-		} else if (angle >= 135 && angle < 225) {
+		} else if (shootAngle >= 135 && shootAngle < 225) {
 			setAnimation("shootDown");
-		} else if (angle >= 225 && angle < 315) {
+		} else if (shootAngle >= 225 && shootAngle < 315) {
 			setAnimation("shootLeft");
 		} else {
 			setAnimation("shootUp");
@@ -100,7 +102,7 @@ public class Shooter extends Sprite {
 		if (spawnDelay > 0) {
 			spawnDelay -= delta;
 		} else if (Shooter.getCount() < SHOOTERLIMIT && random % SPAWNCHANCE == 0) {
-			getWorld().addObject(new Shooter(((int)random/SPAWNCHANCE) * SPAWNGAP, 0));
+			getWorld().addObject(new Shooter(((int)random/SPAWNCHANCE) * SPAWNGAP, -25));
 			spawnDelay = 1000; //This ensures that there is at least a 1 second time-gap between each Shooter spawned.
 		}
 	}
@@ -109,6 +111,9 @@ public class Shooter extends Sprite {
 		setV(0, 0);
 		if (moveTime <= 0) {
 			moveRandom = (int)(Math.random() * 15) + 1;
+			if (spawnImmunity > 0) {
+				moveRandom = 3;
+			}
 			switch (moveRandom) {
 				case 1 : case 15 :
 					dir = 1;
@@ -149,9 +154,6 @@ public class Shooter extends Sprite {
 		}
 		if (getPos().x > 592 - getWidth() / 2) {
 			changeX(-MOVESPEED * delta);
-		}
-		if (getPos().y < getHeight() / 2) {
-			changeY(MOVESPEED * delta);
 		}
 		if (getPos().y > 700 + getHeight() / 2) {
 			getWorld().removeObject(this);
