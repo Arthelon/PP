@@ -1,12 +1,25 @@
 package Entity;
 
+import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 
 public class Bomb extends GameObject {
-
-	public Bomb() throws SlickException {
+	
+	private int time = 2000;
+	public Bomb(float x, float y) throws SlickException {
 		super();
-		// TODO Auto-generated constructor stub
+		
+		setPos(x, y + getHeight());
 	}
-
+	
+	public void update(GameContainer gc, int delta) {
+		time -= delta;
+		if (time <= 0 && time > -1000) {
+			//Flashy Image
+			getWorld().bombActive(this);
+		} 
+		if (time <= 1000) {
+			getWorld().removeObject(this);
+		}
+	}
 }

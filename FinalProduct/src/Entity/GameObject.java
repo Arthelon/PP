@@ -14,13 +14,12 @@ public class GameObject {
 	private Image image; //Image representing the Object
 	private static Game world; //Reference to the "Game" class
 	private Vector2f position; //Coordinates of the center of the Object image relative to screen.
-	private float rotation; //Rotation of image (degrees)
+	private float rotation = 0; //Rotation of image (degrees)
 	private Vector2f velocity; //Direction vector of this object
 	
 	public GameObject() throws SlickException {
 		image = new Image("res/images/blank.png"); //filler image
 		position = new Vector2f(0, 0);
-		rotation = 0;
 		velocity = new Vector2f(0, 0);
 	}
 	

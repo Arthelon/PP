@@ -11,7 +11,10 @@ import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import Entity.Bomb;
+import Entity.Bomber;
 import Entity.Bullet;
+import Entity.Enemy;
 import Entity.Fence;
 import Entity.GameObject;
 import Entity.HealthBar;
@@ -51,9 +54,9 @@ public class Game extends BasicGameState {
 	}
 
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-//		backMusic = new Music("res/sound/levelTheme.ogg");
+		backMusic = new Music("res/sound/levelTheme.ogg");
 		if (first) {
-//			backMusic.loop();
+			backMusic.loop();
 			player = new Player();
 			scoreboard = new ScoreBoard();
 			healthbar = new HealthBar();
@@ -76,6 +79,7 @@ public class Game extends BasicGameState {
 	
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
 		Shooter.spawn(delta);
+		Bomber.spawn(delta);
 		Fence.spawn(delta);
 		updateObjects(gc, delta);
 		if (end) {
@@ -135,12 +139,14 @@ public class Game extends BasicGameState {
 	
 	public void collideCheck(Sprite sprite) throws SlickException {
 		for (GameObject checkObject : collideAble) {
-			if (sprite == checkObject || !sprite.getAlive()) {
+			if (sprite == checkObject || !sprite.getAlive() || 
+					(checkObject instanceof Sprite && 
+					(!((Sprite)checkObject).getAlive()) && !sprite.getAlive())) {
 				continue;
 			}
 			if (checkObject instanceof Bullet) {
 				if (!((Bullet)checkObject).getImmune() && sprite.collide(checkObject.getPos())) {
-					if (((Bullet)checkObject).isEnemyFired() && sprite instanceof Shooter) {
+					if (((Bullet)checkObject).isEnemyFired() && sprite instanceof Enemy) {
 						
 					} else {
 						sprite.death();
@@ -164,7 +170,12 @@ public class Game extends BasicGameState {
 			}
 		}
 	}
-
+	
+	public void bombActive(Bomb bomb) {
+		if (player.getCollide(bomb) != null) {
+			player.death();
+		}
+	}
 	
 	public void endGame() {
 		end = true;

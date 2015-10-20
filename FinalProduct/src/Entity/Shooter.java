@@ -10,13 +10,13 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
-public class Shooter extends Sprite {
+public class Shooter extends Sprite implements Enemy {
 	private static final float SHOOTSPEED = 0.2f;
-	private static final float MOVESPEED = 0.1f;
 	private static final int SCORE = 20;
 	private static final int SPAWNCHANCE = 77;
 	private static final int SPAWNGAP = 37;
 	private static final int SHOOTERLIMIT = 7; //Limit to the number of shooter's on the screen at one time
+	private static final float MOVESPEED = 0.1f;
 	
 	private static int shooterCount = 0; 
 	private static int spawnDelay = 0;
@@ -29,15 +29,15 @@ public class Shooter extends Sprite {
 	private int delta = 0;
 	private int spawnImmunity = 500;
 	private int shootDelay = 0;
-//	private Image left, right, down, back;
+	private Image left, right, down, back;
 	
 	public Shooter(float x, float y) throws SlickException {
 		super();
 		shooterCount++;
-		Image left = new Image("res/images/shooter/shooterLeft.png");
-		Image right = new Image("res/images/shooter/shooterRight.png");
-		Image back = new Image("res/images/shooter/shooterBack.png");
-		Image down = new Image("res/images/shooter/shooter.png");
+		left = new Image("res/images/shooter/shooterLeft.png");
+		right = new Image("res/images/shooter/shooterRight.png");
+		back = new Image("res/images/shooter/shooterBack.png");
+		down = new Image("res/images/shooter/shooter.png");
 		
 		Image[] shootDown = {down, new Image("res/images/shooter/shooter1.png"), down, new Image("res/images/shooter/shooter2.png")};
 		Image[] shootUp = {back, new Image("res/images/shooter/shooterBack1.png"), back, new Image("res/images/shooter/shooterBack2.png")};
@@ -54,7 +54,21 @@ public class Shooter extends Sprite {
 		setAnimation("shootDown");
 		
 		setImage(down);
-		setPos(x + getWidth()/2, y + getHeight()/2);
+		setPos(x, y);
+	}
+	
+	public static void spawn(int delta) throws SlickException {
+		int random = randomGen.nextInt(16*SPAWNCHANCE);
+		if (spawnDelay > 0) {
+			spawnDelay -= delta;
+		} else if (Shooter.getCount() < SHOOTERLIMIT && random % SPAWNCHANCE == 0) {
+			getWorld().addObject(new Shooter(((int)random/SPAWNCHANCE) * SPAWNGAP, -25));
+			spawnDelay = 1000; //This ensures that there is at least a 1 second time-gap between each Shooter spawned.
+		}
+	}
+	
+	public static int getCount() {
+		return shooterCount;
 	}
 	
 	@Override
@@ -66,7 +80,9 @@ public class Shooter extends Sprite {
 		if (getAlive()) {
 			moveShooter();
 			shootPlayer();
-		} 
+		} else {
+			changeY(0.05f * delta);
+		}
 	}
 	
 	public void shootPlayer() throws SlickException {
@@ -97,20 +113,10 @@ public class Shooter extends Sprite {
 		}
 	}
 	
-	public static void spawn(int delta) throws SlickException {
-		int random = randomGen.nextInt(16*SPAWNCHANCE);
-		if (spawnDelay > 0) {
-			spawnDelay -= delta;
-		} else if (Shooter.getCount() < SHOOTERLIMIT && random % SPAWNCHANCE == 0) {
-			getWorld().addObject(new Shooter(((int)random/SPAWNCHANCE) * SPAWNGAP, -25));
-			spawnDelay = 1000; //This ensures that there is at least a 1 second time-gap between each Shooter spawned.
-		}
-	}
-	
 	public void moveShooter() {
 		setV(0, 0);
 		if (moveTime <= 0) {
-			moveRandom = (int)(Math.random() * 15) + 1;
+			moveRandom = randomGen.nextInt(15) + 1;
 			if (spawnImmunity > 0) {
 				moveRandom = 3;
 			}
@@ -164,14 +170,6 @@ public class Shooter extends Sprite {
 		changeY(getV().y);
 	}
 	
-	public void collideMove(Vector2f collideV, boolean alive) {
-		getV().sub(collideV);
-		getV().set(getV().x*-1, getV().y*-1);
-		
-		changeX(getV().x);
-		changeY(getV().y);
-	}
-	
 	
 	public void death() throws SlickException {
 		if (spawnImmunity <= 0) {
@@ -190,8 +188,11 @@ public class Shooter extends Sprite {
 		}
 	}
 	
-	public static int getCount() {
-		return shooterCount;
+	public void collideMove(Vector2f collideV, boolean alive) {
+		getV().sub(collideV);
+		getV().set(getV().x*-1, getV().y*-1);
+		
+		changeX(getV().x);
+		changeY(getV().y);
 	}
-	
 }

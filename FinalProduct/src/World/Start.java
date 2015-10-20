@@ -8,6 +8,7 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.Sound;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -33,8 +34,11 @@ public class Start extends BasicGameState {
 	private int y;
 	private boolean start = false;
 	private int time;
-	private int delta;
+	private int limOne = 700;
+	private int limTwo = 1400;
 	private FadeOutTransition fadeToBlack;
+	
+	private Sound startSound;
 	
 	
 	public Start(int screenX, int screenY) {
@@ -43,6 +47,7 @@ public class Start extends BasicGameState {
 	}
 	
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
+		startSound = new Sound("res/sound/start.wav");
 		title = new Image("res/images/gunSmokeTitle.png");
 		button = new Image("res/images/startButton.png");
 		Font instructionFont = new Font("PF Ronda Seven", Font.PLAIN, 14);
@@ -56,7 +61,7 @@ public class Start extends BasicGameState {
 			instructionF.drawString((screenX/2) - 75, titleHeight+60,"Arrow keys to move");
 			instructionF.drawString(10, screenY-30,"Emulation of \"Gun Smoke\", all rights are upheld by respective game owners");
 			g.drawString(x + ", " + y, 0, 0);
-			if (time >= 0 && time <= 700) {
+			if (time >= 0 && time <= limOne) {
 				button.draw((screenX/2) - 270, 400);
 			} 
 			if (start) {
@@ -66,18 +71,24 @@ public class Start extends BasicGameState {
 	
 
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
-		this.delta = delta;
 		x = Mouse.getX();
 		y = Mouse.getY();
 		if (!start && (y >= 240 && y <= 285) && Mouse.isButtonDown(0)) {
-			gc.sleep(1000);
-			fadeToBlack.init(sbg.getState(0), sbg.getState(1));
 			start = true;
+			limOne = 100;
+			limTwo = 200;
+			time = 0;
+			button.draw((screenX/2) - 270, 400);
+			startSound.play();
+			fadeToBlack.init(sbg.getState(0), sbg.getState(1));
 		}
-		if (!start) {
+		if (!start || startSound.playing()) {
 			time += delta;
+		} else {
+			time = 0;
 		}
-		if (time >= 1400 || start) {
+		
+		if (time >= limTwo) {
 			time = 0;
 		}
 		if (start) {
@@ -88,7 +99,7 @@ public class Start extends BasicGameState {
 			sbg.enterState(1);
 		}
 	}
-
+	
 	@Override
 	public int getID() {
 		//Returns screen ID

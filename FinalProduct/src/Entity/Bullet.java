@@ -26,6 +26,9 @@ public class Bullet extends GameObject {
 	
 	@Override
 	public void update(GameContainer gc, int delta) {
+		if (getPos().y - getHeight()/2 < 0) {
+			getWorld().removeObject(this);
+		}
 		float moveX = (float) Math.cos(Math.toRadians(getRot() - 90));
 		float moveY = (float) Math.sin(Math.toRadians(getRot() - 90));
 		changeX(moveX * delta * speed);
