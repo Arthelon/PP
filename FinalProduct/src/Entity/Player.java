@@ -9,7 +9,7 @@ import org.newdawn.slick.geom.Vector2f;
 
 public class Player extends Sprite {
 	
-	private final float MOVESPEED = 0.2f;   //Movement velocity of Player
+	private final float MOVESPEED = 0.15f;   //Movement velocity of Player
 	private final float FIRESPEED = 0.4f;   //Velocity of Bullets fired by Player
 	
 	private Input input; 
@@ -37,24 +37,28 @@ public class Player extends Sprite {
 		Image[] death = {new Image("res/images/player/death1.png"), new Image("res/images/player/death2.png")};
 		Image[] shootLeft = {left, new Image("res/images/player/shootLeft1.png"), left, new Image("res/images/player/shootLeft2.png")};
 		Image[] shootRight = {right, new Image("res/images/player/shootRight1.png"), right, new Image("res/images/player/shootRight2.png")};
+		Image[] still = {defaultPos};
 		
+		addAnimation(still, 10, "still");
 		addAnimation(shoot, 200, "shoot"); 
 		addAnimation(shootRight, 200, "shootRight");
 		addAnimation(shootLeft, 200, "shootLeft");
 		addAnimation(walk, 200, "walk");
-		addAnimation(death, 200, "death");
+		addAnimation(death, 400, "death");
 		
 		setAnimation("walk");
 	}
 	
 	public void update(GameContainer gc, int delta) throws SlickException {
+		this.delta = delta;
+		input = gc.getInput(); //Gets input from my Game Container
 		if (immune > 0) {
 			immune -= delta;
 		}
-		this.delta = delta;
-		input = gc.getInput(); //Gets input from my Game Container
-		playerMove();
-		bulletFire();
+		if (getAlive()) {
+			playerMove();
+			bulletFire();
+		} 
 	}
 	
 	public void playerMove() {
@@ -72,6 +76,9 @@ public class Player extends Sprite {
 			setV(MOVESPEED * delta, getV().y);
 		}
 		
+		if ((getV().x != 0 || getV().y != 0) && isMapStopped()) {
+			setAnimation("walk");
+		}
 		changeX(getV().x);
 		changeY(getV().y);
 		
@@ -94,52 +101,54 @@ public class Player extends Sprite {
 		if (shootDelay > 0) {
 			shootDelay -= delta;
 		} else if (input.isKeyPressed(Input.KEY_Q)) {
-			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, -45, FIRESPEED, 1300));
+			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, -45, FIRESPEED, 1000));
 			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, -45, FIRESPEED, 1300));
 			
 			setAnimation("shootLeft");
 			bulletSound.play();
 			shootDelay = 200;
 		} else if (input.isKeyPressed(Input.KEY_W)) {
-			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 0, FIRESPEED, 1300));
+			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 0, FIRESPEED, 1000));
 			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 0, FIRESPEED, 1300));
 			
 			setAnimation("shoot");
 			bulletSound.play();
 			shootDelay = 200;
 		} else if (input.isKeyPressed(Input.KEY_E)) {
-			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 45, FIRESPEED, 1300));
-			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 45, FIRESPEED, 1300));
+			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 45, FIRESPEED, 1000));
+			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 45, FIRESPEED, 1000));
 			
 			setAnimation("shootRight");
 			bulletSound.play();
 			shootDelay = 200;
-		} else {
+		} else if (!isMapStopped()){
 			setAnimation("walk");
+		} else {
+			setAnimation("still");
 		}
 	}
 	
 	@Override
-	public void collideMove(Vector2f collideV, boolean alive) {
-		if (alive && immune <= 0) {
-			death();
-		}
+	public void collideMove(Vector2f collideV) {
 		getV().sub(collideV);
-		getV().set(getV().x*-1, getV().y*-1);
+		setV(getV().x*-1, getV().y*-1);
 		
 		changeX(getV().x);
 		changeY(getV().y);
+		
 	}
 	
 	
 	@Override
 	public void death() {
-//		getWorld().getHealthBar().changeHealth(-1);
-		immune = 1000;
-		
-		if (getWorld().getHealthBar().getHealth() == 0) {
-			setAlive(false);
-			getWorld().endGame();
+		if (immune <= 0) {
+			getWorld().getHealthBar().changeHealth(-1);
+			immune = 1000;
+			if (getWorld().getHealthBar().getHealth() == 0) {
+				setAlive(false);
+				deathAnimation();
+				getWorld().endGame();
+			} 
 		} 
 	}
 }

@@ -31,11 +31,6 @@ public class Sprite extends GameObject {
 		}
 	}
 	
-	public boolean collide(Vector2f pos) {
-		return ((pos.x >= getPos().x - getWidth()/2 && pos.x <= getPos().x + getWidth()/2) && 
-				(pos.y >= getPos().y - getHeight()/2 && pos.y <= getPos().y + getHeight()/2));
-	}
-	
 	public void addAnimation(Image[] img, int duration, String key) {
 		animation.put(key, new Animation(img, duration, true));
 	}
@@ -48,6 +43,7 @@ public class Sprite extends GameObject {
 	
 	public void setAnimation(String key) {
 		currentAnimation = animation.get(key);
+		setImage(currentAnimation.getCurrentFrame());
 	}
 	
 	public void death() throws SlickException {
@@ -60,7 +56,7 @@ public class Sprite extends GameObject {
 	}
 	//Make Immune unique to Player
 	//
-	public void collideMove(Vector2f collideList, boolean alive) {
+	public void collideMove(Vector2f collideList) {
 
 	}
 	

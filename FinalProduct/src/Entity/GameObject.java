@@ -16,6 +16,7 @@ public class GameObject {
 	private Vector2f position; //Coordinates of the center of the Object image relative to screen.
 	private float rotation = 0; //Rotation of image (degrees)
 	private Vector2f velocity; //Direction vector of this object
+	private static boolean mapStopped = false;
 	
 	public GameObject() throws SlickException {
 		image = new Image("res/images/blank.png"); //filler image
@@ -97,6 +98,14 @@ public class GameObject {
 	
 	public Vector2f getV() {
 		return velocity;
+	}
+	
+	public static void stopMap() {
+		mapStopped = true;
+	}
+	
+	public static boolean isMapStopped() {
+		return mapStopped;
 	}
 	
 	

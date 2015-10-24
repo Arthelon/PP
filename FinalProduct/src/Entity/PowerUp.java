@@ -2,6 +2,7 @@ package Entity;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.state.StateBasedGame;
 
 public class PowerUp extends GameObject {
 	private static final float MOVESPEED = 0.05f;
@@ -26,6 +27,8 @@ public class PowerUp extends GameObject {
 	}
 	
 	public void update(GameContainer gc, int delta) {
-		changeY(MOVESPEED * delta);
+		if (!isMapStopped()) {
+			changeY(MOVESPEED * delta);
+		}
 	}
 }

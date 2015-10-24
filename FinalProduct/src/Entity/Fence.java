@@ -5,8 +5,9 @@ import java.util.Random;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.state.StateBasedGame;
 
-public class Fence extends GameObject {
+public class Fence extends Sprite {
 	private static Random randomGen = new Random();
 	private static int delay = 0;
 	private static final float SPEED = 0.05f;
@@ -14,13 +15,17 @@ public class Fence extends GameObject {
 	public Fence(int x, int y) throws SlickException {
 		super();
 		setPos(x, y);
-		setImage(new Image("res/images/fence.png"));
+		Image[] defaultAnimation = {new Image("res/images/fence.png")};
+		addAnimation(defaultAnimation, 10000, "default");
+		
+		setAnimation("default");
+		
 	}
 	
 	public static void spawn(int delta) throws SlickException {
 		if (delay > 0) {
 			delay -= delta;
-		} else {
+		} else if (!isMapStopped()){
 			int random = randomGen.nextInt(60);
 			if (random <= 11) {
 				getWorld().addObject(new Fence(random * 48, -8));
@@ -30,8 +35,11 @@ public class Fence extends GameObject {
 	}
 	
 	public void update(GameContainer gc, int delta) {
-		setV(0, SPEED * delta);
-		changeY(getV().y);
+		setV(0, 0);
+		if (!isMapStopped()) {
+			setV(0, SPEED * delta);
+			changeY(getV().y);
+		} 
 		
 		if (getPos().y > 700 + getHeight()/2) {
 			getWorld().removeObject(this);

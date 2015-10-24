@@ -2,6 +2,7 @@ package World;
 
 import java.util.ArrayList;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -10,6 +11,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.state.transition.FadeOutTransition;
 
 import Entity.Bomb;
 import Entity.Bomber;
@@ -33,6 +35,8 @@ public class Game extends BasicGameState {
 	private boolean end = false; 
 	private int mapY; //Y coordinate of background-map
 	private final float MAPSPEED = 0.0005f; //Rate at which map moves upwards
+	private FadeOutTransition fadeToBlack = new FadeOutTransition(new Color(Color.black), 2000);
+	private StateBasedGame sbg;
 	
 	//ArrayLists holding Game Objects
 	private ArrayList<GameObject> objectList = new ArrayList<GameObject>();
@@ -54,9 +58,9 @@ public class Game extends BasicGameState {
 	}
 
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-		backMusic = new Music("res/sound/levelTheme.ogg");
+//		backMusic = new Music("res/sound/levelTheme.ogg");
 		if (first) {
-			backMusic.loop();
+//			backMusic.loop();
 			player = new Player();
 			scoreboard = new ScoreBoard();
 			healthbar = new HealthBar();
@@ -64,6 +68,7 @@ public class Game extends BasicGameState {
 			addObject(scoreboard);
 			addObject(healthbar);
 			
+			this.sbg = sbg;
 			map = new Image("res/images/startMap.png");
 			mapY = -(map.getHeight() - screenY);
 			GameObject.setWorld(this); //Adds a reference to this class in all GameObjects
@@ -75,14 +80,25 @@ public class Game extends BasicGameState {
 		for (GameObject object : objectList) {
 			object.render(gc, g);
 		}
+		if (end) {
+			fadeToBlack.postRender(sbg, gc, g);
+		}
 	}
 	
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
-		Shooter.spawn(delta);
-		Bomber.spawn(delta);
-		Fence.spawn(delta);
-		updateObjects(gc, delta);
+		if (player.getAnimation().isStopped()) {
+			end = true;
+			GameObject.stopMap();
+		}
 		if (end) {
+			fadeToBlack.update(sbg, gc, delta);
+		} else {
+			Shooter.spawn(delta);
+			Bomber.spawn(delta);
+			Fence.spawn(delta);
+			updateObjects(gc, delta);
+		}
+		if (fadeToBlack.isComplete()) {
 			sbg.getState(2).init(gc, sbg); //Initializes End class
 			sbg.enterState(2); //Enters end class (identified using the state ID of 2)
 		}
@@ -91,7 +107,7 @@ public class Game extends BasicGameState {
 	public void updateObjects(GameContainer gc, int delta) throws SlickException {
 		for (GameObject object : objectList) {
 			object.update(gc, delta);
-			if (object instanceof Bullet || object instanceof Fence || object instanceof PowerUp) {
+			if (object instanceof Bullet || object instanceof PowerUp) {
 				collideAble.add(object);
 			}
 			if (object instanceof Sprite) {
@@ -108,9 +124,14 @@ public class Game extends BasicGameState {
 		for (GameObject object : removeList) {
 			objectList.remove(object);
 		}
+		
 		if (mapY + MAPSPEED * delta < 0) {
 			mapY += delta * MAPSPEED;
+		} else {
+			GameObject.stopMap();
 		}
+		
+		sprites.clear();
 		collideAble.clear();
 		addList.clear();
 		removeList.clear();
@@ -140,12 +161,15 @@ public class Game extends BasicGameState {
 	public void collideCheck(Sprite sprite) throws SlickException {
 		for (GameObject checkObject : collideAble) {
 			if (sprite == checkObject || !sprite.getAlive() || 
-					(checkObject instanceof Sprite && 
-					(!((Sprite)checkObject).getAlive()) && !sprite.getAlive())) {
+					(checkObject instanceof Enemy && 
+					sprite instanceof Enemy)) {
 				continue;
 			}
 			if (checkObject instanceof Bullet) {
-				if (!((Bullet)checkObject).getImmune() && sprite.collide(checkObject.getPos())) {
+				if (sprite instanceof Fence && sprite.getCollide(checkObject) != null) {
+					removeObject(checkObject);
+				}
+				if (!((Bullet)checkObject).getImmune() && sprite.getCollide(checkObject) != null) {
 					if (((Bullet)checkObject).isEnemyFired() && sprite instanceof Enemy) {
 						
 					} else {
@@ -155,11 +179,10 @@ public class Game extends BasicGameState {
 				}
 				continue;
 			} 
-			if((checkObject instanceof Sprite || checkObject instanceof Fence) && sprite.getCollide(checkObject) != null) {
-				if (checkObject instanceof Fence || !((Sprite) checkObject).getAlive()) {
-					sprite.collideMove(sprite.getCollide(checkObject), false);
-				} else {
-					sprite.collideMove(sprite.getCollide(checkObject), true);
+			if((checkObject instanceof Sprite) && sprite.getCollide(checkObject) != null) {
+				sprite.collideMove(sprite.getCollide(checkObject));
+				if (sprite instanceof Player && checkObject instanceof Enemy && ((Sprite) checkObject).getAlive()) {
+					sprite.death();
 				}
 				continue;
 			} 
@@ -178,7 +201,7 @@ public class Game extends BasicGameState {
 	}
 	
 	public void endGame() {
-		end = true;
+		fadeToBlack.init(sbg.getCurrentState(), sbg.getState(2));
 	}
 
 	@Override

@@ -15,8 +15,8 @@ public class Shooter extends Sprite implements Enemy {
 	private static final int SCORE = 20;
 	private static final int SPAWNCHANCE = 77;
 	private static final int SPAWNGAP = 37;
-	private static final int SHOOTERLIMIT = 7; //Limit to the number of shooter's on the screen at one time
-	private static final float MOVESPEED = 0.1f;
+	private static final int SHOOTERLIMIT = 6; //Limit to the number of shooter's on the screen at one time
+	private static final float MOVESPEED = 0.08f;
 	
 	private static int shooterCount = 0; 
 	private static int spawnDelay = 0;
@@ -44,12 +44,14 @@ public class Shooter extends Sprite implements Enemy {
 		Image[] shootLeft = {left, new Image("res/images/shooter/shooterLeft1.png"), left, new Image("res/images/shooter/shooterLeft2.png")};
 		Image[] shootRight = {right, new Image("res/images/shooter/shooterRight1.png"), right, new Image("res/images/shooter/shooterRight2.png")};
 		Image[] death = {new Image("res/images/shooter/shooterDeath.png")};
+		Image[] still = {down};
 		
 		addAnimation(shootDown, 200, "shootDown");
 		addAnimation(shootUp, 200, "shootUp");
 		addAnimation(shootLeft, 200, "shootLeft");
 		addAnimation(shootRight, 200, "shootRight");
 		addAnimation(death, 600, "death");
+		addAnimation(still, 10, "still");
 		
 		setAnimation("shootDown");
 		
@@ -80,7 +82,7 @@ public class Shooter extends Sprite implements Enemy {
 		if (getAlive()) {
 			moveShooter();
 			shootPlayer();
-		} else {
+		} else if(!isMapStopped()) {
 			changeY(0.05f * delta);
 		}
 	}
@@ -92,7 +94,7 @@ public class Shooter extends Sprite implements Enemy {
 		
 		if (shootDelay <= 0) {
 			shootAngle = (int) toDegrees(atan2(dY,dX)) + 90;
-			if (random <= 4) {
+			if (random <= 3) {
 				Bullet bullet = new Bullet(getPos().x, getPos().y, shootAngle, SHOOTSPEED, 1300);
 				bullet.setEnemyFired(true);
 				getWorld().addObject(bullet);
@@ -114,7 +116,6 @@ public class Shooter extends Sprite implements Enemy {
 	}
 	
 	public void moveShooter() {
-		setV(0, 0);
 		if (moveTime <= 0) {
 			moveRandom = randomGen.nextInt(15) + 1;
 			if (spawnImmunity > 0) {
@@ -141,18 +142,18 @@ public class Shooter extends Sprite implements Enemy {
 			moveTime-= delta;
 		}
 		
-		
+		setV(0, 0);
 		if (dir == 1) {
-			setV(getV().x, -MOVESPEED * delta);
+			setV(0, -MOVESPEED * delta);
 		}
 		if (dir == 3) {
-			setV(getV().x, MOVESPEED * delta);
+			setV(0, MOVESPEED * delta);
 		}
 		if (dir == 4) {
-			setV(-MOVESPEED * delta, getV().y);
+			setV(-MOVESPEED * delta, 0);
 		}
 		if (dir == 2) {
-			setV(MOVESPEED * delta, getV().y);
+			setV(MOVESPEED * delta, 0);
 		}
 		
 		if (getPos().x < getWidth() / 2) {
@@ -175,22 +176,23 @@ public class Shooter extends Sprite implements Enemy {
 		if (spawnImmunity <= 0) {
 			deathAnimation();
 			setAlive(false);
-			int random = randomGen.nextInt(20) + 1;
+			int random = randomGen.nextInt(30) + 1;
 			if (random == 9) {
 				getWorld().addObject(new PowerHealth(getPos()));
-			} else if (random / 5 == 0) {
+			} else if (random / 7 == 0) {
 				getWorld().addObject(new PowerMoney(getPos()));
 			}
 			
-			
-			shooterCount--;
+			if (!isMapStopped()) {
+				shooterCount--;
+			}
 			getWorld().getScoreBoard().addScore(SCORE);
 		}
 	}
 	
-	public void collideMove(Vector2f collideV, boolean alive) {
+	public void collideMove(Vector2f collideV) {
 		getV().sub(collideV);
-		getV().set(getV().x*-1, getV().y*-1);
+		setV(getV().x*-1, getV().y*-1);
 		
 		changeX(getV().x);
 		changeY(getV().y);

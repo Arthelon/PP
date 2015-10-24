@@ -35,10 +35,12 @@ public class Bomber extends Sprite implements Enemy {
 		Image[] bomberWalk = {walk, new Image("res/images/bomber/Bomber1.png"), walk, new Image("res/images/bomber/Bomber2.png")};
 		Image[] bomberActive = {active, new Image("res/images/bomber/BomberActive1.png"), active, new Image("res/images/bomber/BomberActive2.png")};
 		Image[] bomberDeath = {death};
+		Image[] still = {walk};
 		
 		addAnimation(bomberWalk, 200, "walk");
 		addAnimation(bomberActive, 200, "active");
 		addAnimation(bomberDeath, 600, "death");
+		addAnimation(still, 10, "still");
 		
 		setAnimation("walk");
 		setImage(walk);
@@ -46,7 +48,7 @@ public class Bomber extends Sprite implements Enemy {
 	}
 	//Static Methods
 	public static void spawn(int delta) throws SlickException {
-		if (spawnDelay <= 0 && bomberCount <= BOMBERLIMIT) {
+		if (spawnDelay <= 0 && bomberCount < BOMBERLIMIT) {
 			int random = randomGen.nextInt(25);
 			if (random <= 11) {
 				getWorld().addObject(new Bomber(random * 50,-25));
@@ -69,12 +71,14 @@ public class Bomber extends Sprite implements Enemy {
 		if (getAlive()) {
 			if (bombPlaced) {
 				setAnimation("active");
-			} else {
+			} else if (!isMapStopped()){
 				setAnimation("walk");
+			} else {
+				setAnimation("still");
 			}
 			moveBomber();
 			placeBomb();
-		} else {
+		} else if(!isMapStopped()) {
 			changeY(0.05f * delta);
 		}
 	}
@@ -106,6 +110,9 @@ public class Bomber extends Sprite implements Enemy {
 			moveTime -= delta;
 		}
 		
+		if (dir == 0) {
+			setV(0, 0);
+		}
 		if (dir == 1) {
 			setV(getV().x, -MOVESPEED * delta);
 		}
@@ -117,6 +124,10 @@ public class Bomber extends Sprite implements Enemy {
 		}
 		if (dir == 2) {
 			setV(MOVESPEED * delta, getV().y);
+		}
+		
+		if ((getV().x != 0 || getV().y != 0) && isMapStopped()) {
+			setAnimation("walk");
 		}
 		
 		if (getPos().x < getWidth() / 2) {
@@ -138,14 +149,14 @@ public class Bomber extends Sprite implements Enemy {
 		if (bombDelay <= 0) {
 			bombPlaced = false;
 			int random = randomGen.nextInt(9);
-			if (random <= 2) {
+			if (random <= 1) {
 				bombDelay = 2000;
 				moveTime = 250;
 				dir = 1;
-//				getWorld().addObject(new Bomb(getPos().x, getPos().y));
+				getWorld().addObject(new Bomb(getPos().x, getPos().y));
 				bombPlaced = true;
 			} else {
-				bombDelay = 750;
+				bombDelay = 1000;
 			}
 		} else {
 			bombDelay -= delta;
@@ -153,10 +164,10 @@ public class Bomber extends Sprite implements Enemy {
 		
 	}
 	
-	public void collideMove(Vector2f collideV, boolean alive) {
+	public void collideMove(Vector2f collideV) {
 		getV().sub(collideV);
-		getV().set(getV().x*-1, getV().y*-1);
-		
+		setV(getV().x*-1, getV().y*-1);
+	
 		changeX(getV().x);
 		changeY(getV().y);
 	}
@@ -165,15 +176,16 @@ public class Bomber extends Sprite implements Enemy {
 		if (spawnImmunity <= 0) {
 			deathAnimation();
 			setAlive(false);
-			bomberCount--;
-			
-			int random = randomGen.nextInt(20) + 1;
-			if (random == 9) {
-				getWorld().addObject(new PowerHealth(getPos()));
-			} else if (random / 5 == 0) {
-				getWorld().addObject(new PowerMoney(getPos()));
+			if (!isMapStopped()) {
+				bomberCount--;
 			}
 			
+			int random = randomGen.nextInt(30) + 1;
+			if (random == 9) {
+				getWorld().addObject(new PowerHealth(getPos()));
+			} else if (random / 7 == 0) {
+				getWorld().addObject(new PowerMoney(getPos()));
+			}
 			getWorld().getScoreBoard().addScore(SCORE);
 		}
 	}
