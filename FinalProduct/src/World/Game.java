@@ -34,7 +34,7 @@ public class Game extends BasicGameState {
 	private boolean first = false; //Toggle for first initiation of Game class
 	private boolean end = false; 
 	private int mapY; //Y coordinate of background-map
-	private final float MAPSPEED = 1f; //Rate at which map moves upwards
+	private final float MAPSPEED = 0.0005f; //Rate at which map moves upwards
 	private FadeOutTransition fadeToBlack = new FadeOutTransition(new Color(Color.black), 2000);
 	private StateBasedGame sbg; 
 	private End endWorld;
