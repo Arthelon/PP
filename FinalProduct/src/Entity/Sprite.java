@@ -56,8 +56,9 @@ public class Sprite extends GameObject {
 	}
 	//Make Immune unique to Player
 	//
-	public void collideMove(Vector2f collideList) {
-
+	public void collideMove(Vector2f collideV) {
+			changeX(-1 * (getV().x - collideV.x));
+			changeY(-1 * (getV().y - collideV.y));
 	}
 	
 	public boolean getAlive() {

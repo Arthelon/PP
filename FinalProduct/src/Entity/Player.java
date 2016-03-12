@@ -1,11 +1,11 @@
 package Entity;
 
 import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
-import org.newdawn.slick.geom.Vector2f;
 
 public class Player extends Sprite {
 	
@@ -75,10 +75,7 @@ public class Player extends Sprite {
 		if (input.isKeyDown(Input.KEY_RIGHT)) {
 			setV(MOVESPEED * delta, getV().y);
 		}
-		
-		if ((getV().x != 0 || getV().y != 0) && isMapStopped()) {
-			setAnimation("walk");
-		}
+	
 		changeX(getV().x);
 		changeY(getV().y);
 		
@@ -101,41 +98,40 @@ public class Player extends Sprite {
 		if (shootDelay > 0) {
 			shootDelay -= delta;
 		} else if (input.isKeyPressed(Input.KEY_Q)) {
-			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, -45, FIRESPEED, 1000));
-			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, -45, FIRESPEED, 1300));
+			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, -45, FIRESPEED, 600));
+			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, -45, FIRESPEED, 600));
 			
 			setAnimation("shootLeft");
 			bulletSound.play();
 			shootDelay = 200;
 		} else if (input.isKeyPressed(Input.KEY_W)) {
-			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 0, FIRESPEED, 1000));
-			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 0, FIRESPEED, 1300));
+			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 0, FIRESPEED, 600));
+			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 0, FIRESPEED, 600));
 			
 			setAnimation("shoot");
 			bulletSound.play();
 			shootDelay = 200;
 		} else if (input.isKeyPressed(Input.KEY_E)) {
-			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 45, FIRESPEED, 1000));
-			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 45, FIRESPEED, 1000));
+			getWorld().addObject(new Bullet(getPos().x - getWidth()/2, getPos().y, 45, FIRESPEED, 600));
+			getWorld().addObject(new Bullet(getPos().x + getWidth()/2, getPos().y, 45, FIRESPEED, 600));
 			
 			setAnimation("shootRight");
 			bulletSound.play();
 			shootDelay = 200;
-		} else if (!isMapStopped()){
+		} else if (!isMapStopped() || getV().x != 0 || getV().y != 0){
 			setAnimation("walk");
 		} else {
 			setAnimation("still");
 		}
 	}
 	
-	@Override
-	public void collideMove(Vector2f collideV) {
-		getV().sub(collideV);
-		setV(getV().x*-1, getV().y*-1);
-		
-		changeX(getV().x);
-		changeY(getV().y);
-		
+	public void render(GameContainer gc, Graphics g) {
+		if ((immune / 250) % 2 == 0) {
+			getAnimation().draw(getPos().x-(getWidth()/2), getPos().y-(getHeight()/2)); 
+		}
+		if (getAnimation().isStopped()) {
+			getWorld().removeObject(this);
+		}
 	}
 	
 	
@@ -143,12 +139,13 @@ public class Player extends Sprite {
 	public void death() {
 		if (immune <= 0) {
 			getWorld().getHealthBar().changeHealth(-1);
-			immune = 1000;
 			if (getWorld().getHealthBar().getHealth() == 0) {
 				setAlive(false);
 				deathAnimation();
 				getWorld().endGame();
-			} 
+			} else {
+				immune = 1000;
+			}
 		} 
 	}
 }

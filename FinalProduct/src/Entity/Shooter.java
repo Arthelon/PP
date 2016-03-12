@@ -8,7 +8,6 @@ import java.util.Random;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.geom.Vector2f;
 
 public class Shooter extends Sprite implements Enemy {
 	private static final float SHOOTSPEED = 0.2f;
@@ -63,7 +62,7 @@ public class Shooter extends Sprite implements Enemy {
 		int random = randomGen.nextInt(16*SPAWNCHANCE);
 		if (spawnDelay > 0) {
 			spawnDelay -= delta;
-		} else if (Shooter.getCount() < SHOOTERLIMIT && random % SPAWNCHANCE == 0) {
+		} else if (Shooter.getCount() < SHOOTERLIMIT && random % SPAWNCHANCE == 0 && !isMapStopped()) {
 			getWorld().addObject(new Shooter(((int)random/SPAWNCHANCE) * SPAWNGAP, -25));
 			spawnDelay = 1000; //This ensures that there is at least a 1 second time-gap between each Shooter spawned.
 		}
@@ -83,7 +82,15 @@ public class Shooter extends Sprite implements Enemy {
 			moveShooter();
 			shootPlayer();
 		} else if(!isMapStopped()) {
-			changeY(0.05f * delta);
+			setV(0, MAPSPEED * delta);
+			changeY(getV().y);
+		}
+		if (!getAlive()) {
+			moveTime += delta;
+			if (moveTime <= 50) {
+				setV(0, -0.7f*delta);
+				changeY(getV().y);
+			}
 		}
 	}
 	
@@ -121,17 +128,20 @@ public class Shooter extends Sprite implements Enemy {
 			if (spawnImmunity > 0) {
 				moveRandom = 3;
 			}
+			if (getPos().y + getHeight()/2 < 0) {
+				moveRandom = 6;
+			}
 			switch (moveRandom) {
-				case 1 : case 15 :
+				case 11 : case 15 :
 					dir = 1;
 					break;
-				case 2: case 3: case 4: case 5: 
+				case 1: case 2: case 3: case 4: 
 					dir = 3;
 					break;
-				case 6: case 7: case 8: 
+				case 5: case 7: case 9: 
 					dir = 2;
 					break;
-				case 9: case 10: case 11:
+				case 6: case 8: case 10:
 					dir = 4;
 					break;
 				case 12: case 13: case 14: 
@@ -175,6 +185,7 @@ public class Shooter extends Sprite implements Enemy {
 	public void death() throws SlickException {
 		if (spawnImmunity <= 0) {
 			deathAnimation();
+			moveTime = 0;
 			setAlive(false);
 			int random = randomGen.nextInt(30) + 1;
 			if (random == 9) {
@@ -183,18 +194,8 @@ public class Shooter extends Sprite implements Enemy {
 				getWorld().addObject(new PowerMoney(getPos()));
 			}
 			
-			if (!isMapStopped()) {
-				shooterCount--;
-			}
+			shooterCount--;
 			getWorld().getScoreBoard().addScore(SCORE);
 		}
-	}
-	
-	public void collideMove(Vector2f collideV) {
-		getV().sub(collideV);
-		setV(getV().x*-1, getV().y*-1);
-		
-		changeX(getV().x);
-		changeY(getV().y);
 	}
 }

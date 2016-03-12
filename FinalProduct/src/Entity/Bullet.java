@@ -49,7 +49,7 @@ public class Bullet extends GameObject {
 	}
 	
 	public boolean getImmune() {
-		if (time <= 100) return true;
+		if (time <= 150) return true;
 		return false;
 	}
 

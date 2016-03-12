@@ -7,6 +7,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
 import org.newdawn.slick.TrueTypeFont;
@@ -34,11 +35,12 @@ public class Start extends BasicGameState {
 	private int y;
 	private boolean start = false;
 	private int time;
-	private int limOne = 700;
-	private int limTwo = 1400;
+	private int timeLimit = 700;
 	private FadeOutTransition fadeToBlack;
 	
 	private Sound startSound;
+	private Input input;
+	private boolean clicked = false;
 	
 	
 	public Start(int screenX, int screenY) {
@@ -60,23 +62,28 @@ public class Start extends BasicGameState {
 			instructionF.drawString((screenX/2) - 75, titleHeight+30,"QWE keys to shoot");
 			instructionF.drawString((screenX/2) - 75, titleHeight+60,"Arrow keys to move");
 			instructionF.drawString(10, screenY-30,"Emulation of \"Gun Smoke\", all rights are upheld by respective game owners");
-			g.drawString(x + ", " + y, 0, 0);
-			if (time >= 0 && time <= limOne) {
+			if (time >= 0 && time <= timeLimit) {
 				button.draw((screenX/2) - 270, 400);
 			} 
 			if (start) {
 				fadeToBlack.postRender(sbg, gc, g);
 			}
 	}
+	public void mouseClicked(int button, int x, int y, int clickCount) {
+		if (button == 0 && (y >= 400 && y <= 430)) {
+			clicked = true;
+		}
+	}
 	
 
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
+		input = gc.getInput();
 		x = Mouse.getX();
 		y = Mouse.getY();
-		if (!start && (y >= 240 && y <= 285) && Mouse.isButtonDown(0)) {
+		if (!start && clicked) {
+			clicked = false;
 			start = true;
-			limOne = 100;
-			limTwo = 200;
+			timeLimit = 100;
 			time = 0;
 			button.draw((screenX/2) - 270, 400);
 			startSound.play();
@@ -88,13 +95,15 @@ public class Start extends BasicGameState {
 			time = 0;
 		}
 		
-		if (time >= limTwo) {
+		if (time >= timeLimit*2) {
 			time = 0;
 		}
 		if (start) {
 			fadeToBlack.update(sbg, gc, delta);
 		}
 		if (fadeToBlack.isComplete()) {
+			start = false;
+			timeLimit = 700;
 			sbg.getState(1).init(gc, sbg);
 			sbg.enterState(1);
 		}

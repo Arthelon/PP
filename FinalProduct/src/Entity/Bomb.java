@@ -31,6 +31,9 @@ public class Bomb extends GameObject {
 	
 	public void update(GameContainer gc, int delta) {
 		time -= delta;
+		if (!isMapStopped()) {
+			changeY(delta * MAPSPEED);
+		}
 		if (time <= 1000) {
 			getWorld().bombActive(this);
 			if (time <= 0) {

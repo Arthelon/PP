@@ -5,12 +5,11 @@ import java.util.Random;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.geom.Vector2f;
 
 public class Fence extends Sprite {
 	private static Random randomGen = new Random();
 	private static int delay = 0;
-	private static final float SPEED = 0.05f;
 	
 	public Fence(int x, int y) throws SlickException {
 		super();
@@ -27,7 +26,7 @@ public class Fence extends Sprite {
 			delay -= delta;
 		} else if (!isMapStopped()){
 			int random = randomGen.nextInt(60);
-			if (random <= 11) {
+			if (random <= 15) {
 				getWorld().addObject(new Fence(random * 48, -8));
 			}
 			delay = 1000;
@@ -37,12 +36,17 @@ public class Fence extends Sprite {
 	public void update(GameContainer gc, int delta) {
 		setV(0, 0);
 		if (!isMapStopped()) {
-			setV(0, SPEED * delta);
+			setV(0, MAPSPEED * delta);
 			changeY(getV().y);
 		} 
 		
 		if (getPos().y > 700 + getHeight()/2) {
 			getWorld().removeObject(this);
 		}
+	}
+	
+	@Override
+	public void collideMove(Vector2f collideV) {
+		
 	}
 }

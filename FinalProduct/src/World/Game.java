@@ -34,9 +34,10 @@ public class Game extends BasicGameState {
 	private boolean first = false; //Toggle for first initiation of Game class
 	private boolean end = false; 
 	private int mapY; //Y coordinate of background-map
-	private final float MAPSPEED = 0.0005f; //Rate at which map moves upwards
+	private final float MAPSPEED = 1f; //Rate at which map moves upwards
 	private FadeOutTransition fadeToBlack = new FadeOutTransition(new Color(Color.black), 2000);
-	private StateBasedGame sbg;
+	private StateBasedGame sbg; 
+	private End endWorld;
 	
 	//ArrayLists holding Game Objects
 	private ArrayList<GameObject> objectList = new ArrayList<GameObject>();
@@ -45,22 +46,26 @@ public class Game extends BasicGameState {
 	private ArrayList<GameObject> collideAble = new ArrayList<GameObject>();
 	private ArrayList<Sprite> sprites = new ArrayList<Sprite>();
 	
-	//A few Game Objects
+	//Declaration of classes that will remain throughout the run-time of the Game
 	private Player player;
 	private ScoreBoard scoreboard;
 	private HealthBar healthbar;
 	private Image map;
 	
-	public Game(int screenX, int screenY) {
+	public Game(int screenX, int screenY, End endWorld) {
 		//Size of screen in pixels
 		this.screenX = screenX;
 		this.screenY = screenY;
+		this.endWorld = endWorld;
 	}
-
+	
+	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-//		backMusic = new Music("res/sound/levelTheme.ogg");
+		backMusic = new Music("res/sound/levelTheme.ogg"); //Initialization of background Music
 		if (first) {
-//			backMusic.loop();
+			first = false;
+			backMusic.loop(); //Plays background Music on Loop
+			//Initialization of declared GameObjects, adding them to the GameObject's ArrayList
 			player = new Player();
 			scoreboard = new ScoreBoard();
 			healthbar = new HealthBar();
@@ -68,43 +73,49 @@ public class Game extends BasicGameState {
 			addObject(scoreboard);
 			addObject(healthbar);
 			
-			this.sbg = sbg;
-			map = new Image("res/images/startMap.png");
-			mapY = -(map.getHeight() - screenY);
-			GameObject.setWorld(this); //Adds a reference to this class in all GameObjects
+			this.sbg = sbg; //Passes a reference to the state's StateBasedGame class to a global variable
+			map = new Image("res/images/startMap.png"); //Map image initialization
+			mapY = -(map.getHeight() - screenY); //Map's south edge is initially positioned at the bottom of the screen.
+			GameObject.setWorld(this); //Adds a reference to this Game state in all GameObjects.
 		}
-		first = true;
+		first = true; //Trigger boolean variable
 	}
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
-		map.draw(0, mapY); 
+		map.draw(0, mapY); //Renders map
+		//Renders all GameObjects with a for-each loop
 		for (GameObject object : objectList) {
 			object.render(gc, g);
 		}
 		if (end) {
-			fadeToBlack.postRender(sbg, gc, g);
+			fadeToBlack.postRender(sbg, gc, g); //Renders the FadeOutTransition object (fadeToBlack)
 		}
 	}
 	
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
-		if (player.getAnimation().isStopped()) {
+		if (player.getAnimation().isStopped() || (GameObject.isMapStopped() 
+				&& Shooter.getCount() == 0 && Bomber.getCount() == 0)) {
+			backMusic.stop();
 			end = true;
-			GameObject.stopMap();
 		}
 		if (end) {
 			fadeToBlack.update(sbg, gc, delta);
+			if (fadeToBlack.isComplete()) {
+				fadeToBlack = new FadeOutTransition(new Color(Color.black), 2000);
+				sbg.getState(2).init(gc, sbg); //Initializes End class
+				endWorld.setScore(scoreboard.getScore());
+				sbg.enterState(2); //Enters end class (identified using the state ID of 2)
+			}
 		} else {
-			Shooter.spawn(delta);
-			Bomber.spawn(delta);
-			Fence.spawn(delta);
 			updateObjects(gc, delta);
-		}
-		if (fadeToBlack.isComplete()) {
-			sbg.getState(2).init(gc, sbg); //Initializes End class
-			sbg.enterState(2); //Enters end class (identified using the state ID of 2)
 		}
 	}
 	
 	public void updateObjects(GameContainer gc, int delta) throws SlickException {
+		//Spawns instances of these Sprite classes randomly at the top edge of the screen
+		Shooter.spawn(delta);
+		Bomber.spawn(delta);
+		Fence.spawn(delta);
+		
 		for (GameObject object : objectList) {
 			object.update(gc, delta);
 			if (object instanceof Bullet || object instanceof PowerUp) {
@@ -124,7 +135,6 @@ public class Game extends BasicGameState {
 		for (GameObject object : removeList) {
 			objectList.remove(object);
 		}
-		
 		if (mapY + MAPSPEED * delta < 0) {
 			mapY += delta * MAPSPEED;
 		} else {
@@ -166,12 +176,8 @@ public class Game extends BasicGameState {
 				continue;
 			}
 			if (checkObject instanceof Bullet) {
-				if (sprite instanceof Fence && sprite.getCollide(checkObject) != null) {
-					removeObject(checkObject);
-				}
 				if (!((Bullet)checkObject).getImmune() && sprite.getCollide(checkObject) != null) {
 					if (((Bullet)checkObject).isEnemyFired() && sprite instanceof Enemy) {
-						
 					} else {
 						sprite.death();
 						removeObject(checkObject);
@@ -201,6 +207,8 @@ public class Game extends BasicGameState {
 	}
 	
 	public void endGame() {
+		backMusic.stop();
+		GameObject.stopMap();
 		fadeToBlack.init(sbg.getCurrentState(), sbg.getState(2));
 	}
 

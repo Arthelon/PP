@@ -15,15 +15,17 @@ public class Main extends StateBasedGame {
 	
 	public Main() {
 		super("Gun-Smoke");
+		End end = new End(screenX, screenY);
+		
 		this.addState(new Start(screenX, screenY));
-		this.addState(new Game(screenX, screenY));
-		this.addState(new End(screenX, screenY));
+		this.addState(new Game(screenX, screenY, end));
+		this.addState(end);
 	}
 
 	@Override
 	public void initStatesList(GameContainer gc) throws SlickException {
-		this.getState(START).init(gc, this);
-		this.enterState(START);
+		this.getState(END).init(gc, this);
+		this.enterState(END);
 		
 	}
 	
